@@ -1,0 +1,117 @@
+-- Enable UUID extension
+create extension if not exists "uuid-ossp";
+
+-- 1. PROFILES TABLE (Extends Auth)
+create table profiles (
+  id uuid references auth.users on delete cascade not null primary key,
+  email text,
+  full_name text,
+  role text default 'user' check (role in ('user', 'admin')),
+  credits_cv int default 3,
+  credits_chat int default 50,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- RLS for Profiles
+alter table profiles enable row level security;
+create policy "Public profiles are viewable by everyone." on profiles for select using (true);
+create policy "Users can update own profile." on profiles for update using (auth.uid() = id);
+
+-- Trigger to create profile on signup
+create function public.handle_new_user() 
+returns trigger as $$
+begin
+  insert into public.profiles (id, email, full_name)
+  values (new.id, new.email, new.raw_user_meta_data->>'full_name');
+  return new;
+end;
+$$ language plpgsql security definer;
+
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
+
+-- 2. CV SESSIONS
+create table cv_sessions (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references profiles(id) not null,
+  status text default 'active',
+  original_pdf_url text,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table cv_sessions enable row level security;
+create policy "Users can see own sessions" on cv_sessions for select using (auth.uid() = user_id);
+create policy "Users can insert own sessions" on cv_sessions for insert with check (auth.uid() = user_id);
+
+-- 3. CHAT MESSAGES
+create table chat_messages (
+  id uuid default uuid_generate_v4() primary key,
+  session_id uuid references cv_sessions(id) on delete cascade, 
+  user_id uuid references profiles(id),
+  sender text check (sender in ('user', 'ai')),
+  content text,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table chat_messages enable row level security;
+create policy "Users can see own messages" on chat_messages for select using (auth.uid() = user_id);
+create policy "Users can insert own messages" on chat_messages for insert with check (auth.uid() = user_id);
+
+-- 4. COMPANY COMPARISONS
+create table company_comparisons (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references profiles(id) not null,
+  link_a text,
+  link_b text,
+  analysis_result jsonb,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table company_comparisons enable row level security;
+create policy "Users can see own comparisons" on company_comparisons for select using (auth.uid() = user_id);
+create policy "Users can insert own comparisons" on company_comparisons for insert with check (auth.uid() = user_id);
+
+-- 5. CONSULTATION REQUESTS
+create table consultation_requests (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references profiles(id),
+  email text,
+  subject text,
+  message text,
+  status text default 'pending' check (status in ('pending', 'reviewed', 'closed')),
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table consultation_requests enable row level security;
+create policy "Users can see own requests" on consultation_requests for select using (auth.uid() = user_id);
+create policy "Admins can see all requests" on consultation_requests for select using (
+  exists (select 1 from profiles where id = auth.uid() and role = 'admin')
+);
+create policy "Users can insert requests" on consultation_requests for insert with check (true);
+
+-- 6. CONTACT SUBMISSIONS (General Form)
+create table contact_submissions (
+  id uuid default uuid_generate_v4() primary key,
+  email text,
+  subject text,
+  message text,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table contact_submissions enable row level security;
+create policy "Admins can see submissions" on contact_submissions for select using (
+  exists (select 1 from profiles where id = auth.uid() and role = 'admin')
+);
+create policy "Public can insert submissions" on contact_submissions for insert with check (true);
+
+-- STORAGE BUCKETS
+insert into storage.buckets (id, name, public) values ('cv-uploads', 'cv-uploads', false);
+
+create policy "Upload CV" on storage.objects for insert with check (
+  bucket_id = 'cv-uploads' and auth.uid() = owner
+);
+
+create policy "View CV" on storage.objects for select using (
+  bucket_id = 'cv-uploads' and auth.uid() = owner
+);
