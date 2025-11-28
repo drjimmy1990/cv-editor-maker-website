@@ -17,7 +17,20 @@ export interface UserProfile {
   creditsChat: number;
 }
 
-// Comparison System (Phase 6 Updated)
+// --- CV Optimizer Types (New) ---
+export interface CvOptimizeResult {
+  type?: 'pdf_update' | 'chat_message'; // New field to distinguish
+  message?: string; // The text reply from AI
+  optimizedText: string;
+  pdfBase64: string;
+  suggestions?: string[];
+}
+export interface CvFinalizeResult {
+  downloadUrl: string;     // Permanent Supabase URL
+  sessionId: string;       // Database ID
+}
+
+// --- Comparison System ---
 export interface ComparisonResult {
   // Business A Data
   businessA: string;
@@ -50,6 +63,7 @@ export interface ChatMessage {
   sender: 'user' | 'ai';
   content: string;
   timestamp: Date;
+  isSystem?: boolean; // For status messages like "Generating PDF..."
 }
 
 export interface ConsultationRequest {
