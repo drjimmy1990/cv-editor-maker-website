@@ -163,3 +163,51 @@ GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
 GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
 GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO anon, authenticated, service_role;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- 6. Contact Submissions (For Public "Contact Us" Form)
+CREATE TABLE contact_submissions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    email TEXT NOT NULL,
+    subject TEXT,
+    message TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Enable Security
+ALTER TABLE contact_submissions ENABLE ROW LEVEL SECURITY;
+
+-- Allow ANYONE (even unauthenticated users) to insert data
+CREATE POLICY "Public can insert contact forms" 
+ON contact_submissions FOR INSERT WITH CHECK (true);
+
+-- Allow ONLY Admins to view the data
+CREATE POLICY "Admins can view contact forms" 
+ON contact_submissions FOR SELECT 
+USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+);
+
+-- Grant permissions to the Service Role (which n8n uses)
+GRANT ALL ON contact_submissions TO service_role;
+GRANT INSERT ON contact_submissions TO anon;
