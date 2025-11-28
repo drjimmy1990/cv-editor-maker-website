@@ -157,6 +157,18 @@ export interface CvAward {
   year: string;
 }
 
+export interface CustomSectionItem {
+  title: string;
+  description: string;
+  date?: string;
+}
+
+export interface CustomSection {
+  id: string;
+  title: string;
+  items: CustomSectionItem[];
+}
+
 export interface CvData {
   // Personal
   fullName: string;
@@ -178,4 +190,5 @@ export interface CvData {
   awards: CvAward[];
   hobbies: string;
   references: string;
+  customSections: CustomSection[];
 }

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Plus, X, Save, Eye, Loader, Briefcase, GraduationCap, Award, Globe, Code, FileText, User, Trash2 } from 'lucide-react';
+import { Plus, X, Save, Eye, Loader, Briefcase, GraduationCap, Award, Globe, Code, FileText, User, Trash2, Layout } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
-import { CvData } from '../types';
+import { CvData, CustomSection } from '../types';
+import { useLanguage } from '../context/LanguageContext';
 
 export const CvCreator: React.FC = () => {
     const { user } = useAuth();
+    const { t, isRTL } = useLanguage();
     const [loading, setLoading] = useState(false);
 
     // Track which optional sections are visible
@@ -34,7 +36,8 @@ export const CvCreator: React.FC = () => {
         certifications: [{ name: '', org: '', date: '', link: '' }],
         awards: [{ name: '', org: '', year: '' }],
         hobbies: '',
-        references: ''
+        references: '',
+        customSections: []
     });
 
     // --- Handlers ---
@@ -77,6 +80,46 @@ export const CvCreator: React.FC = () => {
         setFormData({ ...formData, [section]: newArray });
     };
 
+    // Custom Section Handlers
+    const addCustomSection = () => {
+        const newSection: CustomSection = {
+            id: Date.now().toString(),
+            title: '',
+            items: [{ title: '', description: '' }]
+        };
+        setFormData({ ...formData, customSections: [...formData.customSections, newSection] });
+    };
+
+    const removeCustomSection = (index: number) => {
+        const newSections = [...formData.customSections];
+        newSections.splice(index, 1);
+        setFormData({ ...formData, customSections: newSections });
+    };
+
+    const updateCustomSection = (index: number, field: keyof CustomSection, value: any) => {
+        const newSections = [...formData.customSections];
+        newSections[index] = { ...newSections[index], [field]: value };
+        setFormData({ ...formData, customSections: newSections });
+    };
+
+    const addCustomItem = (sectionIndex: number) => {
+        const newSections = [...formData.customSections];
+        newSections[sectionIndex].items.push({ title: '', description: '' });
+        setFormData({ ...formData, customSections: newSections });
+    };
+
+    const removeCustomItem = (sectionIndex: number, itemIndex: number) => {
+        const newSections = [...formData.customSections];
+        newSections[sectionIndex].items.splice(itemIndex, 1);
+        setFormData({ ...formData, customSections: newSections });
+    };
+
+    const updateCustomItem = (sectionIndex: number, itemIndex: number, field: string, value: any) => {
+        const newSections = [...formData.customSections];
+        newSections[sectionIndex].items[itemIndex] = { ...newSections[sectionIndex].items[itemIndex], [field]: value };
+        setFormData({ ...formData, customSections: newSections });
+    };
+
     const handleSubmit = async (previewMode: boolean) => {
         if (!user) return alert("Please login first");
         setLoading(true);
@@ -106,13 +149,13 @@ export const CvCreator: React.FC = () => {
     const removeSectionBtn = "p-2 hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-lg transition-colors";
 
     return (
-        <div className="min-h-screen bg-gray-50 py-12 px-4 font-sans">
+        <div className="min-h-screen bg-gray-50 py-12 px-4 font-sans" dir={isRTL ? 'rtl' : 'ltr'}>
             <div className="max-w-4xl mx-auto">
 
                 {/* Header */}
                 <div className="mb-10 text-center">
-                    <h1 className="text-4xl font-bold text-primary mb-2">CV Builder</h1>
-                    <p className="text-gray-600">Fill out the form below to create your professional resume from scratch.</p>
+                    <h1 className="text-4xl font-bold text-primary mb-2">{t('cvCreator.title')}</h1>
+                    <p className="text-gray-600">{t('cvCreator.subtitle')}</p>
                 </div>
 
                 <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
@@ -120,35 +163,35 @@ export const CvCreator: React.FC = () => {
                     {/* 1. Personal Info (Always Visible) */}
                     <div className={`${cardClass} border-l-4 border-l-primary`}>
                         <div className="flex justify-between items-start mb-6">
-                            <h2 className={sectionTitleClass}><User size={24} /> Personal Information</h2>
+                            <h2 className={sectionTitleClass}><User size={24} /> {t('cvCreator.personalInfo')}</h2>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className={labelClass}>Full Name <span className="text-red-500">*</span></label>
+                                <label className={labelClass}>{t('cvCreator.fullName')} <span className="text-red-500">*</span></label>
                                 <input name="fullName" value={formData.fullName} onChange={handleChange} className={inputClass} placeholder="John Doe" required />
                             </div>
                             <div>
-                                <label className={labelClass}>Job Title</label>
+                                <label className={labelClass}>{t('cvCreator.jobTitle')}</label>
                                 <input name="jobTitle" value={formData.jobTitle} onChange={handleChange} className={inputClass} placeholder="Software Engineer" />
                             </div>
                             <div>
-                                <label className={labelClass}>Email <span className="text-red-500">*</span></label>
+                                <label className={labelClass}>{t('cvCreator.email')} <span className="text-red-500">*</span></label>
                                 <input name="email" value={formData.email} onChange={handleChange} className={inputClass} placeholder="email@example.com" type="email" required />
                             </div>
                             <div>
-                                <label className={labelClass}>Phone</label>
+                                <label className={labelClass}>{t('cvCreator.phone')}</label>
                                 <input name="phone" value={formData.phone} onChange={handleChange} className={inputClass} placeholder="+1 234 567 890" />
                             </div>
                             <div>
-                                <label className={labelClass}>Location</label>
+                                <label className={labelClass}>{t('cvCreator.location')}</label>
                                 <input name="location" value={formData.location} onChange={handleChange} className={inputClass} placeholder="City, Country" />
                             </div>
                             <div>
-                                <label className={labelClass}>LinkedIn / Portfolio</label>
+                                <label className={labelClass}>{t('cvCreator.linkedin')}</label>
                                 <input name="linkedin" value={formData.linkedin} onChange={handleChange} className={inputClass} placeholder="https://linkedin.com/in/..." />
                             </div>
                             <div className="md:col-span-2">
-                                <label className={labelClass}>Profile Photo</label>
+                                <label className={labelClass}>{t('cvCreator.photo')}</label>
                                 <input type="file" accept="image/*" onChange={handlePhotoUpload} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-primary hover:file:bg-blue-100 transition-colors" />
                             </div>
                         </div>
@@ -158,10 +201,10 @@ export const CvCreator: React.FC = () => {
                     {activeSections.summary && (
                         <div className={cardClass}>
                             <div className="flex justify-between items-start mb-6">
-                                <h2 className={sectionTitleClass}><FileText size={24} /> Professional Summary</h2>
-                                <button type="button" onClick={() => toggleSection('summary', false)} className={removeSectionBtn} title="Remove section"><Trash2 size={20} /></button>
+                                <h2 className={sectionTitleClass}><FileText size={24} /> {t('cvCreator.summary')}</h2>
+                                <button type="button" onClick={() => toggleSection('summary', false)} className={removeSectionBtn} title={t('cvCreator.removeSection')}><Trash2 size={20} /></button>
                             </div>
-                            <textarea name="summary" value={formData.summary} onChange={handleChange} className={`${inputClass} min-h-[120px]`} placeholder="Write a brief summary of your experience..." />
+                            <textarea name="summary" value={formData.summary} onChange={handleChange} className={`${inputClass} min-h-[120px]`} placeholder={t('cvCreator.summary') + "..."} />
                         </div>
                     )}
 
@@ -169,8 +212,8 @@ export const CvCreator: React.FC = () => {
                     {activeSections.experience && (
                         <div className={cardClass}>
                             <div className="flex justify-between items-start mb-6">
-                                <h2 className={sectionTitleClass}><Briefcase size={24} /> Work Experience</h2>
-                                <button type="button" onClick={() => toggleSection('experience', false)} className={removeSectionBtn} title="Remove section"><Trash2 size={20} /></button>
+                                <h2 className={sectionTitleClass}><Briefcase size={24} /> {t('cvCreator.experience')}</h2>
+                                <button type="button" onClick={() => toggleSection('experience', false)} className={removeSectionBtn} title={t('cvCreator.removeSection')}><Trash2 size={20} /></button>
                             </div>
                             <div className="space-y-6">
                                 {formData.experience.map((exp, idx) => (
@@ -180,29 +223,29 @@ export const CvCreator: React.FC = () => {
                                         )}
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
-                                                <label className={labelClass}>Job Title</label>
+                                                <label className={labelClass}>{t('cvCreator.jobTitle')}</label>
                                                 <input value={exp.title} onChange={(e) => updateArray('experience', idx, 'title', e.target.value)} className={inputClass} />
                                             </div>
                                             <div>
-                                                <label className={labelClass}>Company</label>
+                                                <label className={labelClass}>{t('cvCreator.organization')}</label>
                                                 <input value={exp.company} onChange={(e) => updateArray('experience', idx, 'company', e.target.value)} className={inputClass} />
                                             </div>
                                             <div>
-                                                <label className={labelClass}>Start Date</label>
+                                                <label className={labelClass}>{t('cvCreator.startDate')}</label>
                                                 <input type="date" value={exp.startDate} onChange={(e) => updateArray('experience', idx, 'startDate', e.target.value)} className={inputClass} />
                                             </div>
                                             <div>
-                                                <label className={labelClass}>End Date</label>
+                                                <label className={labelClass}>{t('cvCreator.endDate')}</label>
                                                 <input type="date" value={exp.endDate} onChange={(e) => updateArray('experience', idx, 'endDate', e.target.value)} className={inputClass} disabled={exp.current} />
                                             </div>
                                             <div className="md:col-span-2">
                                                 <label className="flex items-center gap-2 cursor-pointer">
                                                     <input type="checkbox" checked={exp.current} onChange={(e) => updateArray('experience', idx, 'current', e.target.checked)} className="rounded text-primary focus:ring-secondary" />
-                                                    <span className="text-sm text-gray-700">I currently work here</span>
+                                                    <span className="text-sm text-gray-700">{t('cvCreator.currentWork')}</span>
                                                 </label>
                                             </div>
                                             <div className="md:col-span-2">
-                                                <label className={labelClass}>Responsibilities</label>
+                                                <label className={labelClass}>{t('cvCreator.responsibilities')}</label>
                                                 <textarea value={exp.description} onChange={(e) => updateArray('experience', idx, 'description', e.target.value)} className={`${inputClass} min-h-[100px]`} placeholder="• Achieved X..." />
                                             </div>
                                         </div>
@@ -210,7 +253,7 @@ export const CvCreator: React.FC = () => {
                                 ))}
                             </div>
                             <button onClick={() => addItem('experience', { title: '', company: '', location: '', startDate: '', endDate: '', current: false, description: '' })} className="mt-4 flex items-center gap-2 text-secondary font-bold hover:text-teal-600 transition-colors">
-                                <Plus size={18} /> Add Position
+                                <Plus size={18} /> {t('cvCreator.addPosition')}
                             </button>
                         </div>
                     )}
@@ -219,8 +262,8 @@ export const CvCreator: React.FC = () => {
                     {activeSections.education && (
                         <div className={cardClass}>
                             <div className="flex justify-between items-start mb-6">
-                                <h2 className={sectionTitleClass}><GraduationCap size={24} /> Education</h2>
-                                <button type="button" onClick={() => toggleSection('education', false)} className={removeSectionBtn} title="Remove section"><Trash2 size={20} /></button>
+                                <h2 className={sectionTitleClass}><GraduationCap size={24} /> {t('cvCreator.education')}</h2>
+                                <button type="button" onClick={() => toggleSection('education', false)} className={removeSectionBtn} title={t('cvCreator.removeSection')}><Trash2 size={20} /></button>
                             </div>
                             <div className="space-y-6">
                                 {formData.education.map((edu, idx) => (
@@ -230,19 +273,19 @@ export const CvCreator: React.FC = () => {
                                         )}
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
-                                                <label className={labelClass}>Institution</label>
+                                                <label className={labelClass}>{t('cvCreator.institution')}</label>
                                                 <input value={edu.institution} onChange={(e) => updateArray('education', idx, 'institution', e.target.value)} className={inputClass} />
                                             </div>
                                             <div>
-                                                <label className={labelClass}>Degree</label>
+                                                <label className={labelClass}>{t('cvCreator.degree')}</label>
                                                 <input value={edu.degree} onChange={(e) => updateArray('education', idx, 'degree', e.target.value)} className={inputClass} />
                                             </div>
                                             <div>
-                                                <label className={labelClass}>Field of Study</label>
+                                                <label className={labelClass}>{t('cvCreator.field')}</label>
                                                 <input value={edu.field} onChange={(e) => updateArray('education', idx, 'field', e.target.value)} className={inputClass} />
                                             </div>
                                             <div>
-                                                <label className={labelClass}>Graduation Date</label>
+                                                <label className={labelClass}>{t('cvCreator.gradDate')}</label>
                                                 <input type="date" value={edu.gradDate} onChange={(e) => updateArray('education', idx, 'gradDate', e.target.value)} className={inputClass} />
                                             </div>
                                         </div>
@@ -250,7 +293,7 @@ export const CvCreator: React.FC = () => {
                                 ))}
                             </div>
                             <button onClick={() => addItem('education', { institution: '', degree: '', field: '', gradDate: '', gpa: '' })} className="mt-4 flex items-center gap-2 text-secondary font-bold hover:text-teal-600 transition-colors">
-                                <Plus size={18} /> Add Education
+                                <Plus size={18} /> {t('cvCreator.addEducation')}
                             </button>
                         </div>
                     )}
@@ -260,17 +303,17 @@ export const CvCreator: React.FC = () => {
                         {activeSections.skills && (
                             <div className={cardClass}>
                                 <div className="flex justify-between items-start mb-6">
-                                    <h2 className={sectionTitleClass}><Code size={24} /> Skills</h2>
-                                    <button type="button" onClick={() => toggleSection('skills', false)} className={removeSectionBtn} title="Remove section"><Trash2 size={20} /></button>
+                                    <h2 className={sectionTitleClass}><Code size={24} /> {t('cvCreator.skills')}</h2>
+                                    <button type="button" onClick={() => toggleSection('skills', false)} className={removeSectionBtn} title={t('cvCreator.removeSection')}><Trash2 size={20} /></button>
                                 </div>
                                 {formData.skills.map((skill, idx) => (
                                     <div key={idx} className="flex gap-2 mb-3 items-end">
                                         <div className="flex-1">
-                                            <input value={skill.name} onChange={(e) => updateArray('skills', idx, 'name', e.target.value)} className={inputClass} placeholder="Skill (e.g. React)" />
+                                            <input value={skill.name} onChange={(e) => updateArray('skills', idx, 'name', e.target.value)} className={inputClass} placeholder="e.g. React" />
                                         </div>
                                         <div className="flex-1">
                                             <select value={skill.level} onChange={(e) => updateArray('skills', idx, 'level', e.target.value)} className={inputClass}>
-                                                <option value="">Level</option>
+                                                <option value="">{t('cvCreator.level')}</option>
                                                 <option value="Beginner">Beginner</option>
                                                 <option value="Intermediate">Intermediate</option>
                                                 <option value="Expert">Expert</option>
@@ -279,15 +322,15 @@ export const CvCreator: React.FC = () => {
                                         {formData.skills.length > 1 && <button onClick={() => removeItem('skills', idx)} className="text-red-400 p-2"><X size={18} /></button>}
                                     </div>
                                 ))}
-                                <button onClick={() => addItem('skills', { name: '', level: '' })} className="text-secondary font-bold text-sm flex items-center gap-1"><Plus size={16} /> Add Skill</button>
+                                <button onClick={() => addItem('skills', { name: '', level: '' })} className="text-secondary font-bold text-sm flex items-center gap-1"><Plus size={16} /> {t('cvCreator.addSkill')}</button>
                             </div>
                         )}
 
                         {activeSections.languages && (
                             <div className={cardClass}>
                                 <div className="flex justify-between items-start mb-6">
-                                    <h2 className={sectionTitleClass}><Globe size={24} /> Languages</h2>
-                                    <button type="button" onClick={() => toggleSection('languages', false)} className={removeSectionBtn} title="Remove section"><Trash2 size={20} /></button>
+                                    <h2 className={sectionTitleClass}><Globe size={24} /> {t('cvCreator.languages')}</h2>
+                                    <button type="button" onClick={() => toggleSection('languages', false)} className={removeSectionBtn} title={t('cvCreator.removeSection')}><Trash2 size={20} /></button>
                                 </div>
                                 {formData.languages.map((lang, idx) => (
                                     <div key={idx} className="flex gap-2 mb-3 items-end">
@@ -296,7 +339,7 @@ export const CvCreator: React.FC = () => {
                                         </div>
                                         <div className="flex-1">
                                             <select value={lang.proficiency} onChange={(e) => updateArray('languages', idx, 'proficiency', e.target.value)} className={inputClass}>
-                                                <option value="">Level</option>
+                                                <option value="">{t('cvCreator.proficiency')}</option>
                                                 <option value="Native">Native</option>
                                                 <option value="Fluent">Fluent</option>
                                                 <option value="Conversational">Conversational</option>
@@ -305,7 +348,7 @@ export const CvCreator: React.FC = () => {
                                         {formData.languages.length > 1 && <button onClick={() => removeItem('languages', idx)} className="text-red-400 p-2"><X size={18} /></button>}
                                     </div>
                                 ))}
-                                <button onClick={() => addItem('languages', { name: '', proficiency: '' })} className="text-secondary font-bold text-sm flex items-center gap-1"><Plus size={16} /> Add Language</button>
+                                <button onClick={() => addItem('languages', { name: '', proficiency: '' })} className="text-secondary font-bold text-sm flex items-center gap-1"><Plus size={16} /> {t('cvCreator.addLanguage')}</button>
                             </div>
                         )}
                     </div>
@@ -314,41 +357,41 @@ export const CvCreator: React.FC = () => {
                     {activeSections.awards && (
                         <div className={cardClass}>
                             <div className="flex justify-between items-start mb-6">
-                                <h2 className={sectionTitleClass}><Award size={24} /> Awards</h2>
-                                <button type="button" onClick={() => toggleSection('awards', false)} className={removeSectionBtn} title="Remove section"><Trash2 size={20} /></button>
+                                <h2 className={sectionTitleClass}><Award size={24} /> {t('cvCreator.awards')}</h2>
+                                <button type="button" onClick={() => toggleSection('awards', false)} className={removeSectionBtn} title={t('cvCreator.removeSection')}><Trash2 size={20} /></button>
                             </div>
                             <div className="space-y-4">
                                 {formData.awards.map((award, idx) => (
                                     <div key={idx} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end bg-gray-50 p-4 rounded-lg relative">
                                         {formData.awards.length > 1 && <button onClick={() => removeItem('awards', idx)} className="absolute top-2 right-2 text-red-400"><X size={16} /></button>}
                                         <div>
-                                            <label className="text-xs font-bold text-gray-500">Award Name</label>
+                                            <label className="text-xs font-bold text-gray-500">{t('cvCreator.awardName')}</label>
                                             <input value={award.name} onChange={(e) => updateArray('awards', idx, 'name', e.target.value)} className={inputClass} />
                                         </div>
                                         <div>
-                                            <label className="text-xs font-bold text-gray-500">Organization</label>
+                                            <label className="text-xs font-bold text-gray-500">{t('cvCreator.organization')}</label>
                                             <input value={award.org} onChange={(e) => updateArray('awards', idx, 'org', e.target.value)} className={inputClass} />
                                         </div>
                                         <div>
-                                            <label className="text-xs font-bold text-gray-500">Year</label>
+                                            <label className="text-xs font-bold text-gray-500">{t('cvCreator.year')}</label>
                                             <input value={award.year} onChange={(e) => updateArray('awards', idx, 'year', e.target.value)} className={inputClass} />
                                         </div>
                                     </div>
                                 ))}
                             </div>
-                            <button onClick={() => addItem('awards', { name: '', org: '', year: '' })} className="mt-4 flex items-center gap-2 text-secondary font-bold"><Plus size={18} /> Add Award</button>
+                            <button onClick={() => addItem('awards', { name: '', org: '', year: '' })} className="mt-4 flex items-center gap-2 text-secondary font-bold"><Plus size={18} /> {t('cvCreator.addAward')}</button>
                         </div>
                     )}
 
                     {/* 7. Extra Details */}
                     {(activeSections.hobbies || activeSections.references) && (
                         <div className={cardClass}>
-                            <h2 className={sectionTitleClass}>Extra Details</h2>
+                            <h2 className={sectionTitleClass}>{t('cvCreator.hobbies')} / {t('cvCreator.references')}</h2>
                             <div className="grid md:grid-cols-2 gap-6 mt-4">
                                 {activeSections.hobbies && (
                                     <div className="relative">
                                         <div className="flex justify-between items-center mb-2">
-                                            <label className={labelClass}>Hobbies & Interests</label>
+                                            <label className={labelClass}>{t('cvCreator.hobbies')}</label>
                                             <button type="button" onClick={() => toggleSection('hobbies', false)} className="text-red-300 hover:text-red-500"><X size={16} /></button>
                                         </div>
                                         <textarea name="hobbies" value={formData.hobbies} onChange={handleChange} className={`${inputClass} min-h-[80px]`} placeholder="Reading, Chess, Hiking..." />
@@ -357,7 +400,7 @@ export const CvCreator: React.FC = () => {
                                 {activeSections.references && (
                                     <div className="relative">
                                         <div className="flex justify-between items-center mb-2">
-                                            <label className={labelClass}>References</label>
+                                            <label className={labelClass}>{t('cvCreator.references')}</label>
                                             <button type="button" onClick={() => toggleSection('references', false)} className="text-red-300 hover:text-red-500"><X size={16} /></button>
                                         </div>
                                         <textarea name="references" value={formData.references} onChange={handleChange} className={`${inputClass} min-h-[80px]`} placeholder="Available upon request..." />
@@ -367,16 +410,53 @@ export const CvCreator: React.FC = () => {
                         </div>
                     )}
 
+                    {/* 8. Custom Sections */}
+                    {formData.customSections.map((section, sectionIndex) => (
+                        <div key={section.id} className={cardClass}>
+                            <div className="flex justify-between items-start mb-6">
+                                <div className="flex items-center gap-2 flex-1">
+                                    <Layout size={24} className="text-primary" />
+                                    <input
+                                        value={section.title}
+                                        onChange={(e) => updateCustomSection(sectionIndex, 'title', e.target.value)}
+                                        className="text-2xl font-bold text-primary bg-transparent border-b border-gray-300 focus:border-secondary outline-none w-full max-w-md"
+                                        placeholder={t('cvCreator.sectionTitle')}
+                                    />
+                                </div>
+                                <button type="button" onClick={() => removeCustomSection(sectionIndex)} className={removeSectionBtn} title={t('cvCreator.removeSection')}><Trash2 size={20} /></button>
+                            </div>
+                            <div className="space-y-6">
+                                {section.items.map((item, itemIndex) => (
+                                    <div key={itemIndex} className="p-6 bg-gray-50 rounded-xl border border-gray-200 relative">
+                                        <button onClick={() => removeCustomItem(sectionIndex, itemIndex)} className="absolute top-4 right-4 text-red-400 hover:text-red-600"><X size={18} /></button>
+                                        <div className="grid grid-cols-1 gap-4">
+                                            <div>
+                                                <label className={labelClass}>{t('cvCreator.itemTitle')}</label>
+                                                <input value={item.title} onChange={(e) => updateCustomItem(sectionIndex, itemIndex, 'title', e.target.value)} className={inputClass} />
+                                            </div>
+                                            <div>
+                                                <label className={labelClass}>{t('cvCreator.description')}</label>
+                                                <textarea value={item.description} onChange={(e) => updateCustomItem(sectionIndex, itemIndex, 'description', e.target.value)} className={`${inputClass} min-h-[80px]`} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <button onClick={() => addCustomItem(sectionIndex)} className="mt-4 flex items-center gap-2 text-secondary font-bold"><Plus size={18} /> {t('cvCreator.addItem')}</button>
+                        </div>
+                    ))}
+
                     {/* ADD SECTIONS MENU */}
                     <div className="flex flex-wrap gap-3 justify-center py-4 bg-white/50 rounded-xl border border-dashed border-gray-300">
-                        <span className="text-sm font-bold text-gray-500 uppercase tracking-wider w-full text-center mb-1">Add Sections</span>
-                        {!activeSections.experience && <button onClick={() => toggleSection('experience', true)} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors">+ Experience</button>}
-                        {!activeSections.education && <button onClick={() => toggleSection('education', true)} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors">+ Education</button>}
-                        {!activeSections.skills && <button onClick={() => toggleSection('skills', true)} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors">+ Skills</button>}
-                        {!activeSections.languages && <button onClick={() => toggleSection('languages', true)} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors">+ Languages</button>}
-                        {!activeSections.awards && <button onClick={() => toggleSection('awards', true)} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors">+ Awards</button>}
-                        {!activeSections.hobbies && <button onClick={() => toggleSection('hobbies', true)} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors">+ Hobbies</button>}
-                        {!activeSections.references && <button onClick={() => toggleSection('references', true)} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors">+ References</button>}
+                        <span className="text-sm font-bold text-gray-500 uppercase tracking-wider w-full text-center mb-1">{t('cvCreator.addSection')}</span>
+                        {!activeSections.experience && <button onClick={() => toggleSection('experience', true)} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors">+ {t('cvCreator.experience')}</button>}
+                        {!activeSections.education && <button onClick={() => toggleSection('education', true)} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors">+ {t('cvCreator.education')}</button>}
+                        {!activeSections.skills && <button onClick={() => toggleSection('skills', true)} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors">+ {t('cvCreator.skills')}</button>}
+                        {!activeSections.languages && <button onClick={() => toggleSection('languages', true)} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors">+ {t('cvCreator.languages')}</button>}
+                        {!activeSections.awards && <button onClick={() => toggleSection('awards', true)} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors">+ {t('cvCreator.awards')}</button>}
+                        {!activeSections.hobbies && <button onClick={() => toggleSection('hobbies', true)} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors">+ {t('cvCreator.hobbies')}</button>}
+                        {!activeSections.references && <button onClick={() => toggleSection('references', true)} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors">+ {t('cvCreator.references')}</button>}
+                        <button onClick={addCustomSection} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:border-secondary hover:text-secondary transition-colors">+ {t('cvCreator.addCustomSection')}</button>
                     </div>
 
                     {/* Actions */}
@@ -386,14 +466,14 @@ export const CvCreator: React.FC = () => {
                             disabled={loading}
                             className="flex-1 bg-primary hover:bg-blue-800 text-white h-14 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-2 transition-transform hover:scale-[1.01] disabled:opacity-70"
                         >
-                            {loading ? <Loader className="animate-spin" /> : <><Save /> Save & Generate CV</>}
+                            {loading ? <Loader className="animate-spin" /> : <><Save /> {t('cvCreator.saveGenerate')}</>}
                         </button>
                         <button
                             type="button"
                             disabled={loading}
                             className="flex-1 bg-white border-2 border-primary text-primary hover:bg-blue-50 h-14 rounded-xl font-bold text-lg shadow-md flex items-center justify-center gap-2 transition-transform hover:scale-[1.01]"
                         >
-                            <Eye /> Preview
+                            <Eye /> {t('cvCreator.preview')}
                         </button>
                     </div>
 
