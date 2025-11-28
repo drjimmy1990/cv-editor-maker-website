@@ -63,6 +63,10 @@ export const ar = {
     optimizeBtn: "تحسين سيرتي الذاتية",
     compareBtn: "بدء المقارنة",
     consultBtn: "طلب جلسة",
+    cvCreatorTitle: "منشئ السيرة الذاتية بالذكاء الاصطناعي",
+    cvCreatorDesc: "ليس لديك سيرة ذاتية بعد؟ استخدم معالجنا الذكي لبناء سيرة ذاتية احترافية من الصفر في دقائق.",
+    singleBusinessTitle: "محلل الأعمال الفردي",
+    buildCvBtn: "بناء سيرتي الذاتية",
   },
   cv: {
     title: "عارض المستندات",

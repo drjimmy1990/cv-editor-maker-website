@@ -80,7 +80,7 @@ export const Services: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-3 text-sm text-gray-700 font-medium">
                   <PenTool size={20} className="text-secondary shrink-0" />
-                  <span>AI CV Creator</span>
+                  <span>{t('services.cvCreatorTitle')}</span>
                 </div>
               </div>
 
@@ -110,7 +110,7 @@ export const Services: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-3 text-sm text-gray-700 font-medium">
                   <Activity size={20} className="text-primary shrink-0" />
-                  <span>Single Business Analyzer</span>
+                  <span>{t('services.singleBusinessTitle')}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm text-gray-700 font-medium">
                   <MessageCircle size={20} className="text-primary shrink-0" />
@@ -182,16 +182,16 @@ export const Services: React.FC = () => {
                 </div>
                 <div className="p-8 flex-1 flex flex-col">
                   <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-xl font-bold text-charcoal">AI CV Creator</h3>
+                    <h3 className="text-xl font-bold text-charcoal">{t('services.cvCreatorTitle')}</h3>
                   </div>
                   <p className="text-gray-600 text-sm mb-8 leading-relaxed flex-1">
-                    Don't have a CV yet? Use our smart wizard to build a professional resume from scratch in minutes.
+                    {t('services.cvCreatorDesc')}
                   </p>
                   <button
                     onClick={() => navigate('/services/cv-creator')}
                     className="w-full bg-secondary text-white hover:bg-teal-600 py-3 rounded-xl font-bold transition-colors flex justify-center items-center gap-2 mt-auto"
                   >
-                    Build My CV <ArrowForward size={18} />
+                    {t('services.buildCvBtn')} <ArrowForward size={18} />
                   </button>
                 </div>
               </div>
@@ -269,6 +269,6 @@ export const Services: React.FC = () => {
           </div>
         )}
       </div>
-    </div>
+    </div >
   );
 };

@@ -63,6 +63,10 @@ export const en = {
     optimizeBtn: "Optimize My CV",
     compareBtn: "Start Comparison",
     consultBtn: "Request Session",
+    cvCreatorTitle: "AI CV Creator",
+    cvCreatorDesc: "Don't have a CV yet? Use our smart wizard to build a professional resume from scratch in minutes.",
+    singleBusinessTitle: "Single Business Analyzer",
+    buildCvBtn: "Build My CV",
   },
   cv: {
     title: "Document Viewer",
