@@ -105,3 +105,77 @@ export interface LangContextType {
   t: (key: string) => any;
   isRTL: boolean;
 }
+
+
+// Add these to your existing types.ts
+
+export interface CvWorkExperience {
+  title: string;
+  company: string;
+  location: string;
+  startDate: string;
+  endDate: string;
+  current: boolean;
+  description: string;
+}
+
+export interface CvEducation {
+  institution: string;
+  degree: string;
+  field: string;
+  gradDate: string;
+  gpa: string;
+}
+
+export interface CvSkill {
+  name: string;
+  level: string;
+}
+
+export interface CvLanguage {
+  name: string;
+  proficiency: string;
+}
+
+export interface CvProject {
+  name: string;
+  date: string;
+  description: string;
+  link: string;
+}
+
+export interface CvCertification {
+  name: string;
+  org: string;
+  date: string;
+  link: string;
+}
+
+export interface CvAward {
+  name: string;
+  org: string;
+  year: string;
+}
+
+export interface CvData {
+  // Personal
+  fullName: string;
+  jobTitle: string;
+  email: string;
+  phone: string;
+  location: string;
+  linkedin: string;
+  photoBase64: string; // We will convert image to string
+
+  // Sections
+  summary: string;
+  experience: CvWorkExperience[];
+  education: CvEducation[];
+  skills: CvSkill[];
+  languages: CvLanguage[];
+  projects: CvProject[];
+  certifications: CvCertification[];
+  awards: CvAward[];
+  hobbies: string;
+  references: string;
+}

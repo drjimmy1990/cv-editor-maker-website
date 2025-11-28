@@ -160,5 +160,22 @@ export const api = {
             console.error("CV Finalize Error:", error);
             throw error;
         }
+    },
+    createCvFromData: async (data: any, userId: string) => {
+        try {
+            const response = await fetch(`${N8N_BASE_URL}/create-cv`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ ...data, userId }),
+            });
+
+            if (!response.ok) throw new Error("Failed to generate CV");
+            return await response.json();
+        } catch (error) {
+            console.error("Create CV Error:", error);
+            throw error;
+        }
     }
 };
