@@ -5,7 +5,7 @@ import {
   Briefcase, MessageSquare, Home as HomeIcon, Info, CreditCard
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
-import { useAuth } from '../context/AuthContext'; // ✅ Using Real Auth
+import { useAuth } from '../context/AuthContext';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -14,14 +14,13 @@ interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  // ✅ REPLACED: Mock user state with Real Auth Context
   const { user, signOut } = useAuth();
 
   const location = useLocation();
   const navigate = useNavigate();
   const { lang, toggleLang, t, isRTL } = useLanguage();
 
-  // Scroll to top on route change (excluding hash changes handled manually)
+  // Scroll to top on route change
   useEffect(() => {
     if (!location.hash) {
       window.scrollTo(0, 0);
@@ -29,7 +28,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   }, [location.pathname]);
 
   const handleLogout = async () => {
-    // ✅ REPLACED: Mock sign out with Real sign out
     await signOut();
     navigate('/');
   };
@@ -49,55 +47,42 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const handleNavClick = (path: string) => {
     setIsOpen(false);
 
-    // Case 1: Clicking Home explicitly when already on Home
     if (path === '/' && location.pathname === '/' && !location.hash) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
-    // Case 2: Hash Link (e.g. /#about or /#services)
     if (path.startsWith('/#')) {
       const id = path.replace('/#', '');
-
       if (location.pathname === '/') {
-        // If on Home, scroll to element
         const element = document.getElementById(id);
         if (element) {
           element.scrollIntoView({ behavior: 'smooth' });
-          // Update URL without causing a reload, to manage active state
           window.history.pushState(null, '', path);
-          // Sync with router
           navigate(path, { replace: true });
         }
       } else {
-        // If on another page, navigate to Home with hash
-        // The Home component's useEffect will handle the scrolling
         navigate(path);
       }
     } else {
-      // Case 3: Standard Page Link
       navigate(path);
       window.scrollTo(0, 0);
     }
   };
 
-  // Helper to determine if a link is active
   const checkActive = (linkPath: string) => {
     const currentPath = location.pathname;
     const currentHash = location.hash;
 
-    // 1. Exact Home Match (No Hash)
     if (linkPath === '/') {
       return currentPath === '/' && (!currentHash || currentHash === '');
     }
 
-    // 2. Hash Match (e.g. /#about)
     if (linkPath.startsWith('/#')) {
-      const targetHash = linkPath.replace('/', ''); // #about
+      const targetHash = linkPath.replace('/', '');
       return currentPath === '/' && currentHash === targetHash;
     }
 
-    // 3. Sub-route Match (e.g. /services -> /services/consultation)
     if (linkPath !== '/') {
       return currentPath === linkPath || currentPath.startsWith(linkPath + '/');
     }
@@ -107,8 +92,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div className={`min-h-screen flex flex-col font-sans text-charcoal bg-background ${isRTL ? 'font-cairo' : 'font-poppins'}`} dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Navigation */}
-      <nav className="bg-primary text-white sticky top-0 z-50 shadow-md">
+      {/* Navigation - Hidden on Print */}
+      <nav className="bg-primary text-white sticky top-0 z-50 shadow-md print:hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
 
@@ -161,8 +146,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               {user ? (
                 <div className="flex items-center gap-3 bg-blue-900/50 px-3 py-1 rounded-full border border-blue-700">
                   <User size={16} className="text-secondary" />
-                  {/* ✅ UPDATED: Handle safe access to name */}
-                  <span className="text-xs font-light tracking-wide">{user.full_name || user.email}</span>
+                  <span className="text-xs font-light tracking-wide">{user.full_name || user.email?.split('@')[0]}</span>
                   <button onClick={handleLogout} className="text-gray-400 hover:text-white transition-colors" title={t('common.signOut')}>
                     <LogOut size={16} />
                   </button>
@@ -232,8 +216,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         {children}
       </main>
 
-      {/* Footer */}
-      <footer className="bg-primary text-gray-300 py-10 border-t border-blue-800">
+      {/* Footer - Hidden on Print */}
+      <footer className="bg-primary text-gray-300 py-10 border-t border-blue-800 print:hidden">
         <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
