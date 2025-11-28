@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, X, Save, Eye, Loader, Briefcase, GraduationCap, Award, Globe, Code, FileText, User, Trash2, Layout } from 'lucide-react';
+import { Plus, X, Save, Loader, Briefcase, GraduationCap, Award, Globe, Code, FileText, User, Trash2, Layout } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { CvData, CustomSection } from '../types';
@@ -85,7 +85,7 @@ export const CvCreator: React.FC = () => {
         const newSection: CustomSection = {
             id: Date.now().toString(),
             title: '',
-            items: [{ title: '', description: '' }]
+            items: [{ title: '', description: '', fields: [] }]
         };
         setFormData({ ...formData, customSections: [...formData.customSections, newSection] });
     };
@@ -104,7 +104,7 @@ export const CvCreator: React.FC = () => {
 
     const addCustomItem = (sectionIndex: number) => {
         const newSections = [...formData.customSections];
-        newSections[sectionIndex].items.push({ title: '', description: '' });
+        newSections[sectionIndex].items.push({ title: '', description: '', fields: [] });
         setFormData({ ...formData, customSections: newSections });
     };
 
@@ -120,13 +120,28 @@ export const CvCreator: React.FC = () => {
         setFormData({ ...formData, customSections: newSections });
     };
 
+    const addCustomField = (sectionIndex: number, itemIndex: number) => {
+        const newSections = [...formData.customSections];
+        newSections[sectionIndex].items[itemIndex].fields.push({ label: '', value: '' });
+        setFormData({ ...formData, customSections: newSections });
+    };
+
+    const removeCustomField = (sectionIndex: number, itemIndex: number, fieldIndex: number) => {
+        const newSections = [...formData.customSections];
+        newSections[sectionIndex].items[itemIndex].fields.splice(fieldIndex, 1);
+        setFormData({ ...formData, customSections: newSections });
+    };
+
+    const updateCustomField = (sectionIndex: number, itemIndex: number, fieldIndex: number, key: 'label' | 'value', newValue: string) => {
+        const newSections = [...formData.customSections];
+        newSections[sectionIndex].items[itemIndex].fields[fieldIndex][key] = newValue;
+        setFormData({ ...formData, customSections: newSections });
+    };
+
     const handleSubmit = async (previewMode: boolean) => {
         if (!user) return alert("Please login first");
         setLoading(true);
         try {
-            // Filter data based on active sections? 
-            // Optional: You can send everything, n8n can decide, or filter here.
-            // Sending everything is safer for now.
             const response = await api.createCvFromData(formData, user.id);
 
             if (response.downloadUrl) {
@@ -155,7 +170,7 @@ export const CvCreator: React.FC = () => {
                 {/* Header */}
                 <div className="mb-10 text-center">
                     <h1 className="text-4xl font-bold text-primary mb-2">{t('cvCreator.title')}</h1>
-                    <p className="text-gray-600">{t('cvCreator.subtitle')}</p>
+                    <p className="text-gray-600">{t('cvCreator.pageSubtitle')}</p>
                 </div>
 
                 <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
@@ -231,6 +246,10 @@ export const CvCreator: React.FC = () => {
                                                 <input value={exp.company} onChange={(e) => updateArray('experience', idx, 'company', e.target.value)} className={inputClass} />
                                             </div>
                                             <div>
+                                                <label className={labelClass}>{t('cvCreator.location')}</label>
+                                                <input value={exp.location} onChange={(e) => updateArray('experience', idx, 'location', e.target.value)} className={inputClass} />
+                                            </div>
+                                            <div>
                                                 <label className={labelClass}>{t('cvCreator.startDate')}</label>
                                                 <input type="date" value={exp.startDate} onChange={(e) => updateArray('experience', idx, 'startDate', e.target.value)} className={inputClass} />
                                             </div>
@@ -287,6 +306,10 @@ export const CvCreator: React.FC = () => {
                                             <div>
                                                 <label className={labelClass}>{t('cvCreator.gradDate')}</label>
                                                 <input type="date" value={edu.gradDate} onChange={(e) => updateArray('education', idx, 'gradDate', e.target.value)} className={inputClass} />
+                                            </div>
+                                            <div>
+                                                <label className={labelClass}>{t('cvCreator.gpa')}</label>
+                                                <input value={edu.gpa} onChange={(e) => updateArray('education', idx, 'gpa', e.target.value)} className={inputClass} placeholder="3.8/4.0" />
                                             </div>
                                         </div>
                                     </div>
@@ -353,7 +376,87 @@ export const CvCreator: React.FC = () => {
                         )}
                     </div>
 
-                    {/* 6. Awards & Certifications */}
+                    {/* 6. Certifications */}
+                    {activeSections.certifications && (
+                        <div className={cardClass}>
+                            <div className="flex justify-between items-start mb-6">
+                                <h2 className={sectionTitleClass}><Award size={24} /> {t('cvCreator.certifications')}</h2>
+                                <button type="button" onClick={() => toggleSection('certifications', false)} className={removeSectionBtn} title={t('cvCreator.removeSection')}><Trash2 size={20} /></button>
+                            </div>
+                            <div className="space-y-6">
+                                {formData.certifications.map((cert, idx) => (
+                                    <div key={idx} className="p-6 bg-gray-50 rounded-xl border border-gray-200 relative">
+                                        {formData.certifications.length > 1 && (
+                                            <button onClick={() => removeItem('certifications', idx)} className="absolute top-4 right-4 text-red-400 hover:text-red-600"><X size={18} /></button>
+                                        )}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className={labelClass}>{t('cvCreator.certName')} <span className="text-red-500">*</span></label>
+                                                <input value={cert.name} onChange={(e) => updateArray('certifications', idx, 'name', e.target.value)} className={inputClass} />
+                                            </div>
+                                            <div>
+                                                <label className={labelClass}>{t('cvCreator.issuingOrg')} <span className="text-red-500">*</span></label>
+                                                <input value={cert.org} onChange={(e) => updateArray('certifications', idx, 'org', e.target.value)} className={inputClass} />
+                                            </div>
+                                            <div>
+                                                <label className={labelClass}>{t('cvCreator.completionDate')}</label>
+                                                <input type="date" value={cert.date} onChange={(e) => updateArray('certifications', idx, 'date', e.target.value)} className={inputClass} />
+                                            </div>
+                                            <div>
+                                                <label className={labelClass}>{t('cvCreator.verificationLink')}</label>
+                                                <input value={cert.link} onChange={(e) => updateArray('certifications', idx, 'link', e.target.value)} className={inputClass} placeholder="https://..." />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <button onClick={() => addItem('certifications', { name: '', org: '', date: '', link: '' })} className="mt-4 flex items-center gap-2 text-secondary font-bold hover:text-teal-600 transition-colors">
+                                <Plus size={18} /> {t('cvCreator.addCertification')}
+                            </button>
+                        </div>
+                    )}
+
+                    {/* 7. Personal Projects */}
+                    {activeSections.projects && (
+                        <div className={cardClass}>
+                            <div className="flex justify-between items-start mb-6">
+                                <h2 className={sectionTitleClass}><Code size={24} /> {t('cvCreator.projects')}</h2>
+                                <button type="button" onClick={() => toggleSection('projects', false)} className={removeSectionBtn} title={t('cvCreator.removeSection')}><Trash2 size={20} /></button>
+                            </div>
+                            <div className="space-y-6">
+                                {formData.projects.map((proj, idx) => (
+                                    <div key={idx} className="p-6 bg-gray-50 rounded-xl border border-gray-200 relative">
+                                        {formData.projects.length > 1 && (
+                                            <button onClick={() => removeItem('projects', idx)} className="absolute top-4 right-4 text-red-400 hover:text-red-600"><X size={18} /></button>
+                                        )}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className={labelClass}>{t('cvCreator.projectName')} <span className="text-red-500">*</span></label>
+                                                <input value={proj.name} onChange={(e) => updateArray('projects', idx, 'name', e.target.value)} className={inputClass} />
+                                            </div>
+                                            <div>
+                                                <label className={labelClass}>{t('cvCreator.projectDate')}</label>
+                                                <input type="date" value={proj.date} onChange={(e) => updateArray('projects', idx, 'date', e.target.value)} className={inputClass} />
+                                            </div>
+                                            <div className="md:col-span-2">
+                                                <label className={labelClass}>{t('cvCreator.description')} <span className="text-red-500">*</span></label>
+                                                <textarea value={proj.description} onChange={(e) => updateArray('projects', idx, 'description', e.target.value)} className={`${inputClass} min-h-[100px]`} placeholder={t('cvCreator.description') + "..."} />
+                                            </div>
+                                            <div className="md:col-span-2">
+                                                <label className={labelClass}>{t('cvCreator.projectLink')}</label>
+                                                <input value={proj.link} onChange={(e) => updateArray('projects', idx, 'link', e.target.value)} className={inputClass} placeholder="https://..." />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <button onClick={() => addItem('projects', { name: '', date: '', description: '', link: '' })} className="mt-4 flex items-center gap-2 text-secondary font-bold hover:text-teal-600 transition-colors">
+                                <Plus size={18} /> {t('cvCreator.addProject')}
+                            </button>
+                        </div>
+                    )}
+
+                    {/* 8. Awards */}
                     {activeSections.awards && (
                         <div className={cardClass}>
                             <div className="flex justify-between items-start mb-6">
@@ -383,7 +486,7 @@ export const CvCreator: React.FC = () => {
                         </div>
                     )}
 
-                    {/* 7. Extra Details */}
+                    {/* 9. Extra Details */}
                     {(activeSections.hobbies || activeSections.references) && (
                         <div className={cardClass}>
                             <h2 className={sectionTitleClass}>{t('cvCreator.hobbies')} / {t('cvCreator.references')}</h2>
@@ -410,7 +513,7 @@ export const CvCreator: React.FC = () => {
                         </div>
                     )}
 
-                    {/* 8. Custom Sections */}
+                    {/* 10. Custom Sections */}
                     {formData.customSections.map((section, sectionIndex) => (
                         <div key={section.id} className={cardClass}>
                             <div className="flex justify-between items-start mb-6">
@@ -438,6 +541,26 @@ export const CvCreator: React.FC = () => {
                                                 <label className={labelClass}>{t('cvCreator.description')}</label>
                                                 <textarea value={item.description} onChange={(e) => updateCustomItem(sectionIndex, itemIndex, 'description', e.target.value)} className={`${inputClass} min-h-[80px]`} />
                                             </div>
+
+                                            {/* Dynamic Fields */}
+                                            {item.fields.map((field, fieldIndex) => (
+                                                <div key={fieldIndex} className="flex gap-2 items-end">
+                                                    <div className="flex-1">
+                                                        <label className={labelClass}>{t('cvCreator.fieldLabel')}</label>
+                                                        <input value={field.label} onChange={(e) => updateCustomField(sectionIndex, itemIndex, fieldIndex, 'label', e.target.value)} className={inputClass} />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <label className={labelClass}>{t('cvCreator.fieldValue')}</label>
+                                                        <input value={field.value} onChange={(e) => updateCustomField(sectionIndex, itemIndex, fieldIndex, 'value', e.target.value)} className={inputClass} />
+                                                    </div>
+                                                    <button type="button" onClick={() => removeCustomField(sectionIndex, itemIndex, fieldIndex)} className="p-2.5 text-red-400 hover:bg-red-50 rounded-lg transition-colors" title={t('cvCreator.removeField')}>
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            <button type="button" onClick={() => addCustomField(sectionIndex, itemIndex)} className="text-sm font-bold text-secondary flex items-center gap-1 hover:underline">
+                                                <Plus size={14} /> {t('cvCreator.addField')}
+                                            </button>
                                         </div>
                                     </div>
                                 ))}
@@ -453,6 +576,8 @@ export const CvCreator: React.FC = () => {
                         {!activeSections.education && <button onClick={() => toggleSection('education', true)} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors">+ {t('cvCreator.education')}</button>}
                         {!activeSections.skills && <button onClick={() => toggleSection('skills', true)} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors">+ {t('cvCreator.skills')}</button>}
                         {!activeSections.languages && <button onClick={() => toggleSection('languages', true)} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors">+ {t('cvCreator.languages')}</button>}
+                        {!activeSections.certifications && <button onClick={() => toggleSection('certifications', true)} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors">+ {t('cvCreator.certifications')}</button>}
+                        {!activeSections.projects && <button onClick={() => toggleSection('projects', true)} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors">+ {t('cvCreator.projects')}</button>}
                         {!activeSections.awards && <button onClick={() => toggleSection('awards', true)} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors">+ {t('cvCreator.awards')}</button>}
                         {!activeSections.hobbies && <button onClick={() => toggleSection('hobbies', true)} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors">+ {t('cvCreator.hobbies')}</button>}
                         {!activeSections.references && <button onClick={() => toggleSection('references', true)} className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors">+ {t('cvCreator.references')}</button>}
@@ -460,20 +585,13 @@ export const CvCreator: React.FC = () => {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex gap-4 pt-4 sticky bottom-4 z-10">
+                    <div className="flex justify-center pt-8 sticky bottom-4 z-10">
                         <button
                             onClick={() => handleSubmit(false)}
                             disabled={loading}
-                            className="flex-1 bg-primary hover:bg-blue-800 text-white h-14 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-2 transition-transform hover:scale-[1.01] disabled:opacity-70"
+                            className="w-full md:w-1/2 bg-primary hover:bg-blue-800 text-white h-14 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-2 transition-transform hover:scale-[1.01] disabled:opacity-70"
                         >
                             {loading ? <Loader className="animate-spin" /> : <><Save /> {t('cvCreator.saveGenerate')}</>}
-                        </button>
-                        <button
-                            type="button"
-                            disabled={loading}
-                            className="flex-1 bg-white border-2 border-primary text-primary hover:bg-blue-50 h-14 rounded-xl font-bold text-lg shadow-md flex items-center justify-center gap-2 transition-transform hover:scale-[1.01]"
-                        >
-                            <Eye /> {t('cvCreator.preview')}
                         </button>
                     </div>
 

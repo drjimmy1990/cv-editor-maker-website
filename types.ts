@@ -161,6 +161,7 @@ export interface CustomSectionItem {
   title: string;
   description: string;
   date?: string;
+  fields: { label: string; value: string; }[];
 }
 
 export interface CustomSection {
