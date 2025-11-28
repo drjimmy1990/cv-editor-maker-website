@@ -144,14 +144,15 @@ export const api = {
     },
 
     /**
-     * 3. Finalize: Save to Supabase Storage & Database
+     * 3. Finalize: Mark session as complete and get final URL
+     * ✅ UPDATED: Uses sessionId to find the specific record
      */
-    finalizeCv: async (userId: string, finalText: string): Promise<CvFinalizeResult> => {
+    finalizeCv: async (sessionId: string): Promise<CvFinalizeResult> => {
         try {
             const response = await fetch(`${N8N_BASE_URL}/finalize-cv`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId, finalText })
+                body: JSON.stringify({ sessionId })
             });
 
             if (!response.ok) throw new Error("Finalization failed");

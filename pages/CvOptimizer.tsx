@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload, Send, Download, FileText, X, RefreshCw, Loader, MessageSquare } from 'lucide-react';
+import { Upload, Send, Download, FileText, X, ExternalLink, RefreshCw, Loader, MessageSquare } from 'lucide-react';
 import { api } from '../services/api';
 import { ChatMessage } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -166,15 +166,27 @@ export const CvOptimizer: React.FC = () => {
     }
   };
 
-  // 3. Finalize & Download
+  // 3. Finalize & Download (UPDATED)
   const handleDownloadFinal = async () => {
-    if (!user || !currentText) return;
+    // Check for sessionId instead of user/text, as per new logic
+    if (!sessionId) {
+      alert("No active session found.");
+      return;
+    }
+
     setIsFinalizing(true);
     try {
-      const result = await api.finalizeCv(user.id, currentText);
+      // ✅ Updated to match api.ts: only send sessionId
+      const result = await api.finalizeCv(sessionId);
+
       // Open the permanent URL in new tab
-      window.open(result.downloadUrl, '_blank');
+      if (result.downloadUrl) {
+        window.open(result.downloadUrl, '_blank');
+      } else {
+        alert("Error: Download URL not received.");
+      }
     } catch (error) {
+      console.error(error);
       alert("Failed to save the final PDF.");
     } finally {
       setIsFinalizing(false);
