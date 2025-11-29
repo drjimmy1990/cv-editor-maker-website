@@ -218,6 +218,11 @@ export const en = {
     fieldLabel: "Label (e.g. Location)",
     fieldValue: "Value (e.g. New York)",
     removeField: "Remove Field",
+    cvGeneratedSuccess: "CV Generated Successfully!",
+    cvDownloadedMessage: "Your CV has been downloaded. For further optimization and AI-powered enhancements, try our CV Optimizer.",
+    goToOptimizer: "Go to CV Optimizer",
+    continueEditing: "Continue Editing",
+    isRequired: "is required",
     removeSection: "Remove section",
   }
 };

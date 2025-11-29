@@ -142,22 +142,22 @@ export const CvCreator: React.FC = () => {
     };
 
     const validateForm = () => {
-        if (!formData.fullName.trim()) return t('cvCreator.fullName') + " is required";
-        if (!formData.email.trim()) return t('cvCreator.email') + " is required";
+        if (!formData.fullName.trim()) return t('cvCreator.fullName') + " " + t('cvCreator.isRequired');
+        if (!formData.email.trim()) return t('cvCreator.email') + " " + t('cvCreator.isRequired');
 
         // Validate Projects if active
         if (activeSections.projects) {
             for (const proj of formData.projects) {
-                if (!proj.name.trim()) return t('cvCreator.projectName') + " is required";
-                if (!proj.description.trim()) return t('cvCreator.description') + " is required";
+                if (!proj.name.trim()) return t('cvCreator.projectName') + " " + t('cvCreator.isRequired');
+                if (!proj.description.trim()) return t('cvCreator.description') + " " + t('cvCreator.isRequired');
             }
         }
 
         // Validate Certifications if active
         if (activeSections.certifications) {
             for (const cert of formData.certifications) {
-                if (!cert.name.trim()) return t('cvCreator.certName') + " is required";
-                if (!cert.org.trim()) return t('cvCreator.issuingOrg') + " is required";
+                if (!cert.name.trim()) return t('cvCreator.certName') + " " + t('cvCreator.isRequired');
+                if (!cert.org.trim()) return t('cvCreator.issuingOrg') + " " + t('cvCreator.isRequired');
             }
         }
 
@@ -209,22 +209,22 @@ export const CvCreator: React.FC = () => {
                     <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
                         <CheckCircle size={40} />
                     </div>
-                    <h2 className="text-3xl font-bold text-gray-900 mb-4">CV Generated Successfully!</h2>
+                    <h2 className="text-3xl font-bold text-gray-900 mb-4">{t('cvCreator.cvGeneratedSuccess')}</h2>
                     <p className="text-gray-600 mb-8 text-lg">
-                        Your CV has been downloaded. For further optimization and AI-powered enhancements, try our CV Optimizer.
+                        {t('cvCreator.cvDownloadedMessage')}
                     </p>
                     <div className="flex flex-col gap-4">
                         <button
                             onClick={() => navigate('/services/cv-optimizer')}
                             className="w-full bg-primary hover:bg-blue-800 text-white py-4 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
                         >
-                            Go to CV Optimizer <ArrowRight size={20} />
+                            {t('cvCreator.goToOptimizer')} <ArrowRight size={20} />
                         </button>
                         <button
                             onClick={() => setShowSuccess(false)}
                             className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold transition-colors"
                         >
-                            Continue Editing
+                            {t('cvCreator.continueEditing')}
                         </button>
                     </div>
                 </div>

@@ -219,6 +219,11 @@ export const ar = {
     fieldLabel: "التسمية (مثل الموقع)",
     fieldValue: "القيمة (مثل نيويورك)",
     removeField: "إزالة الحقل",
+    cvGeneratedSuccess: "تم إنشاء السيرة الذاتية بنجاح!",
+    cvDownloadedMessage: "تم تنزيل سيرتك الذاتية. لمزيد من التحسينات المدعومة بالذكاء الاصطناعي، جرب محسن السيرة الذاتية الخاص بنا.",
+    goToOptimizer: "الذهاب إلى محسن السيرة الذاتية",
+    continueEditing: "متابعة التحرير",
+    isRequired: "مطلوب",
     removeSection: "إزالة القسم",
   }
 };
