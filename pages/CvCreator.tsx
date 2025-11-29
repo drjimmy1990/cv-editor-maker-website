@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
-import { Plus, X, Save, Loader, Briefcase, GraduationCap, Award, Globe, Code, FileText, User, Trash2, Layout } from 'lucide-react';
+import { Plus, X, Save, Loader, Briefcase, GraduationCap, Award, Globe, Code, FileText, User, Trash2, Layout, CheckCircle, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { CvData, CustomSection } from '../types';
 import { useLanguage } from '../context/LanguageContext';
+import { useNavigate } from 'react-router-dom';
 
 export const CvCreator: React.FC = () => {
     const { user } = useAuth();
     const { t, isRTL } = useLanguage();
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
 
     // Track which optional sections are visible
     const [activeSections, setActiveSections] = useState({
@@ -138,14 +141,50 @@ export const CvCreator: React.FC = () => {
         setFormData({ ...formData, customSections: newSections });
     };
 
+    const validateForm = () => {
+        if (!formData.fullName.trim()) return t('cvCreator.fullName') + " is required";
+        if (!formData.email.trim()) return t('cvCreator.email') + " is required";
+
+        // Validate Projects if active
+        if (activeSections.projects) {
+            for (const proj of formData.projects) {
+                if (!proj.name.trim()) return t('cvCreator.projectName') + " is required";
+                if (!proj.description.trim()) return t('cvCreator.description') + " is required";
+            }
+        }
+
+        // Validate Certifications if active
+        if (activeSections.certifications) {
+            for (const cert of formData.certifications) {
+                if (!cert.name.trim()) return t('cvCreator.certName') + " is required";
+                if (!cert.org.trim()) return t('cvCreator.issuingOrg') + " is required";
+            }
+        }
+
+        return null;
+    };
+
     const handleSubmit = async (previewMode: boolean) => {
         if (!user) return alert("Please login first");
+
+        const error = validateForm();
+        if (error) return alert(error);
+
         setLoading(true);
         try {
             const response = await api.createCvFromData(formData, user.id);
 
             if (response.downloadUrl) {
-                window.open(response.downloadUrl, '_blank');
+                // Create a temporary link to force download
+                const link = document.createElement('a');
+                link.href = response.downloadUrl;
+                link.setAttribute('download', 'CV.pdf'); // Hint to browser to download
+                link.setAttribute('target', '_blank'); // Fallback
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                setShowSuccess(true);
             } else {
                 alert("CV Generated, but URL missing.");
             }
@@ -162,6 +201,36 @@ export const CvCreator: React.FC = () => {
     const labelClass = "block text-sm font-semibold text-charcoal mb-1.5";
     const inputClass = "w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary focus:border-transparent outline-none transition-all";
     const removeSectionBtn = "p-2 hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-lg transition-colors";
+
+    if (showSuccess) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4" dir={isRTL ? 'rtl' : 'ltr'}>
+                <div className="max-w-lg w-full bg-white rounded-2xl shadow-xl p-8 text-center">
+                    <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <CheckCircle size={40} />
+                    </div>
+                    <h2 className="text-3xl font-bold text-gray-900 mb-4">CV Generated Successfully!</h2>
+                    <p className="text-gray-600 mb-8 text-lg">
+                        Your CV has been downloaded. For further optimization and AI-powered enhancements, try our CV Optimizer.
+                    </p>
+                    <div className="flex flex-col gap-4">
+                        <button
+                            onClick={() => navigate('/services/cv-optimizer')}
+                            className="w-full bg-primary hover:bg-blue-800 text-white py-4 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
+                        >
+                            Go to CV Optimizer <ArrowRight size={20} />
+                        </button>
+                        <button
+                            onClick={() => setShowSuccess(false)}
+                            className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold transition-colors"
+                        >
+                            Continue Editing
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 py-12 px-4 font-sans" dir={isRTL ? 'rtl' : 'ltr'}>
