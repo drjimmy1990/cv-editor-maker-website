@@ -57,7 +57,7 @@ export const en = {
     cvOptTitle: "AI CV Optimizer",
     cvOptDesc: "Upload your resume and get instant, AI-driven improvements to beat Applicant Tracking Systems (ATS).",
     compAnalysisTitle: "Competitor Analysis",
-    compAnalysisDesc: "Compare two business entities side-by-side using real-time sentiment data and performance metrics.",
+    compAnalysisDesc: "Compare two business entities side-by-side using real-time sentiment data and performance metrics Using Google Maps and Google Reviews data",
     expertConsultTitle: "Expert Consultation",
     expertConsultDesc: "Book a session with industry veterans to solve complex business challenges and explore new markets.",
     optimizeBtn: "Optimize My CV",
@@ -90,6 +90,8 @@ export const en = {
     ratingGap: "Rating Gap",
     sentiment: "Sentiment Analysis",
     recommendation: "Strategic Recommendation",
+    poweredBy: "Powered by Google Maps & AI",
+    reportLanguage: "Report Language",
   },
   contact: {
     title: "Contact Us",
@@ -105,13 +107,78 @@ export const en = {
     title: "Expert Consultation",
     subtitle: "Connect with senior strategists to solve specific business challenges (Corporate Service).",
     emailNote: "Please provide your corporate email.",
-    subject: "Topic of Interest",
-    message: "Briefing",
+
+    // Form Fields
+    entityName: "Entity Name",
+    entityNamePlaceholder: "Please enter the name of your organization.",
+    contactPerson: "Contact Person",
+    contactPersonPlaceholder: "Full name of the primary contact.",
+    mobileNumber: "Mobile Number",
+    mobileNumberPlaceholder: "Preferred mobile number for communication.",
+    projectOverview: "Project Overview",
+    projectOverviewPlaceholder: "Please describe your project and any background information.",
+    supportNeeds: "How Can We Support You?",
+    supportNeedsPlaceholder: "Please write freely what you need support with, your current challenges, or the outcomes you are seeking.",
+
     submitRequest: "Submit Request",
     submitting: "Submitting...",
     successTitle: "Request Received",
     successMsg: "We've sent your request to our expert panel. You will receive an email notification shortly.",
     submitAnother: "Submit another request",
+
+    // Services Section
+    ourServices: "Our Services",
+
+    service1Title: "Strategy & Growth",
+    service1Desc: "Helping organizations define clear direction and unlock sustainable growth.",
+    service1Points: [
+      "Market Entry Strategy",
+      "Corporate & Business Strategy",
+      "Turnaround & Recovery Plans",
+      "Transformation Strategy",
+      "Market & Competitive Analysis"
+    ],
+
+    service2Title: "Operations & Performance Excellence",
+    service2Desc: "Improving efficiency, productivity, and overall operational performance.",
+    service2Points: [
+      "Process Optimization",
+      "Cost Reduction & Productivity Enhancements",
+      "KPI & Performance Management Frameworks",
+      "Operations Diagnostics",
+      "Lean & Continuous Improvement"
+    ],
+
+    service3Title: "Organization & Capability Development",
+    service3Desc: "Building structures, governance, and capabilities that enable long-term success.",
+    service3Points: [
+      "Organizational Design",
+      "Operating Model Development",
+      "Governance Frameworks",
+      "Change Management",
+      "Capability Building & Training Programs"
+    ],
+
+    service4Title: "Real Estate & Investment Advisory",
+    service4Desc: "Supporting investors and developers in making informed decisions and maximizing asset value.",
+    service4Points: [
+      "Highest & Best Use (HBU) Studies",
+      "Feasibility Studies",
+      "Investment & Financial Evaluation",
+      "Portfolio Optimization",
+      "Market Assessment & Demand Analysis"
+    ],
+
+    // Industry Verticals
+    industryVerticals: "Industry Verticals",
+    industrySubtitle: "Based on delivered projects and real experience:",
+    industries: [
+      "Public Sector",
+      "Industrial",
+      "Defense & Aerospace",
+      "Real Estate",
+      "F&B & Retail"
+    ]
   },
   pricing: {
     title: "Simple, Transparent Pricing",
@@ -227,7 +294,7 @@ export const en = {
   },
   businessAnalyzer: {
     title: "Business Analyzer",
-    subtitle: "Enter a business URL to generate an AI-powered performance report.",
+    subtitle: "Enter a business URL to generate an AI-powered performance report Using Google Maps and Google Reviews data.",
     businessUrl: "Business URL",
     analyzing: "Analyzing...",
     analyzeNow: "Analyze Now",

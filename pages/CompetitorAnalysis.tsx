@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, TrendingUp, Award, ThumbsUp, ThumbsDown, AlertTriangle, Loader, Printer, ArrowRight, Star, Users, BarChart2 } from 'lucide-react';
+import { Search, TrendingUp, Award, ThumbsUp, ThumbsDown, AlertTriangle, Loader, Printer, ArrowRight, Star, Users, BarChart2, MapPin } from 'lucide-react';
 // ⚠️ CRITICAL CHANGE: Ensure this imports 'api', NOT 'geminiService'
 import { api } from '../services/api';
 import { ComparisonResult } from '../types';
@@ -8,6 +8,7 @@ import { useLanguage } from '../context/LanguageContext';
 export const CompetitorAnalysis: React.FC = () => {
   const [linkA, setLinkA] = useState('');
   const [linkB, setLinkB] = useState('');
+  const [reportLang, setReportLang] = useState<'English' | 'Arabic'>('English');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ComparisonResult | null>(null);
   const { t, isRTL } = useLanguage();
@@ -21,7 +22,7 @@ export const CompetitorAnalysis: React.FC = () => {
 
     try {
       // ✅ Call the n8n API wrapper
-      const data = await api.compareBusinesses(linkA, linkB);
+      const data = await api.compareBusinesses(linkA, linkB, reportLang);
 
       // Safety check for empty lists to prevent .map() errors
       if (!data.strengthsA) data.strengthsA = [];
@@ -60,10 +61,36 @@ export const CompetitorAnalysis: React.FC = () => {
               <label className="block text-sm font-medium text-charcoal mb-1">{t('analysis.businessB')}</label>
               <input type="text" placeholder="Google Maps Link B" value={linkB} onChange={(e) => setLinkB(e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-2" />
             </div>
-            <div className="md:col-span-3 mt-4 flex justify-center">
+
+            <div className="md:col-span-3 mt-4 flex flex-col items-center gap-4">
+              {/* Language Toggle */}
+              <div className="flex items-center gap-4 bg-gray-50 p-2 rounded-lg border border-gray-200">
+                <span className="text-sm font-medium text-gray-600">{t('analysis.reportLanguage')}:</span>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setReportLang('English')}
+                    className={`px-3 py-1 rounded text-sm font-bold transition-colors ${reportLang === 'English' ? 'bg-primary text-white' : 'bg-white text-gray-600 hover:bg-gray-100'}`}
+                  >
+                    English
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setReportLang('Arabic')}
+                    className={`px-3 py-1 rounded text-sm font-bold transition-colors ${reportLang === 'Arabic' ? 'bg-primary text-white' : 'bg-white text-gray-600 hover:bg-gray-100'}`}
+                  >
+                    العربية
+                  </button>
+                </div>
+              </div>
+
               <button type="submit" disabled={loading} className="bg-accent hover:bg-yellow-600 text-white font-bold py-3 px-10 rounded-lg shadow-md flex items-center gap-2">
-                {loading ? <><Loader className="animate-spin" /> Analyzing...</> : <><Search size={18} /> {t('analysis.compareNow')}</>}
+                {loading ? <><Loader className="animate-spin" /> {t('analysis.comparing')}</> : <><Search size={18} /> {t('analysis.compareNow')}</>}
               </button>
+
+              <p className="text-xs text-gray-400 font-medium flex items-center gap-1">
+                <MapPin size={12} /> {t('analysis.poweredBy')}
+              </p>
             </div>
           </form>
         </div>

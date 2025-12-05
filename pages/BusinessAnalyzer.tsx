@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Search, TrendingUp, ThumbsUp, ThumbsDown, AlertTriangle, Loader, Printer, Star, Users, BarChart2 } from 'lucide-react';
+import { Search, TrendingUp, ThumbsUp, ThumbsDown, AlertTriangle, Loader, Printer, Star, Users, BarChart2, MapPin } from 'lucide-react';
 import { api } from '../services/api';
 import { BusinessAnalysisResult } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 
 export const BusinessAnalyzer: React.FC = () => {
     const [link, setLink] = useState('');
+    const [reportLang, setReportLang] = useState<'English' | 'Arabic'>('English');
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<BusinessAnalysisResult | null>(null);
     const { t } = useLanguage();
@@ -18,7 +19,7 @@ export const BusinessAnalyzer: React.FC = () => {
         setResult(null);
 
         try {
-            const data = await api.analyzeBusiness(link);
+            const data = await api.analyzeBusiness(link, reportLang);
 
             // Safety check for empty lists
             if (!data.strengths) data.strengths = [];
@@ -56,10 +57,36 @@ export const BusinessAnalyzer: React.FC = () => {
                                 className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                             />
                         </div>
-                        <div className="flex justify-center mt-2">
+
+                        <div className="flex flex-col items-center gap-4 mt-2">
+                            {/* Language Toggle */}
+                            <div className="flex items-center gap-4 bg-gray-50 p-2 rounded-lg border border-gray-200">
+                                <span className="text-sm font-medium text-gray-600">{t('analysis.reportLanguage')}:</span>
+                                <div className="flex gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setReportLang('English')}
+                                        className={`px-3 py-1 rounded text-sm font-bold transition-colors ${reportLang === 'English' ? 'bg-primary text-white' : 'bg-white text-gray-600 hover:bg-gray-100'}`}
+                                    >
+                                        English
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setReportLang('Arabic')}
+                                        className={`px-3 py-1 rounded text-sm font-bold transition-colors ${reportLang === 'Arabic' ? 'bg-primary text-white' : 'bg-white text-gray-600 hover:bg-gray-100'}`}
+                                    >
+                                        العربية
+                                    </button>
+                                </div>
+                            </div>
+
                             <button type="submit" disabled={loading} className="w-full md:w-auto bg-accent hover:bg-yellow-600 text-white font-bold py-3 px-10 rounded-lg shadow-md flex items-center justify-center gap-2 transition-colors">
                                 {loading ? <><Loader className="animate-spin" /> {t('businessAnalyzer.analyzing')}</> : <><Search size={18} /> {t('businessAnalyzer.analyzeNow')}</>}
                             </button>
+
+                            <p className="text-xs text-gray-400 font-medium flex items-center gap-1">
+                                <MapPin size={12} /> {t('analysis.poweredBy')}
+                            </p>
                         </div>
                     </form>
                 </div>

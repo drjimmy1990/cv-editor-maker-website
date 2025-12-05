@@ -12,8 +12,11 @@ interface ContactPayload {
 interface ConsultationPayload {
     userId: string;
     email: string;
-    subject: string;
-    message: string;
+    entityName: string;
+    contactPerson: string;
+    mobileNumber: string;
+    projectOverview: string;
+    supportNeeds: string;
 }
 
 export const api = {
@@ -68,14 +71,14 @@ export const api = {
     /**
      * Sends two business URLs to n8n for AI analysis
      */
-    compareBusinesses: async (linkA: string, linkB: string): Promise<ComparisonResult> => {
+    compareBusinesses: async (linkA: string, linkB: string, language: string = 'English'): Promise<ComparisonResult> => {
         try {
             const response = await fetch(`${N8N_BASE_URL}/competitor-analysis`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ linkA, linkB }),
+                body: JSON.stringify({ linkA, linkB, language }),
             });
 
             if (!response.ok) {
@@ -92,14 +95,14 @@ export const api = {
     /**
      * Sends a single business URL to n8n for AI analysis
      */
-    analyzeBusiness: async (link: string): Promise<BusinessAnalysisResult> => {
+    analyzeBusiness: async (link: string, language: string = 'English'): Promise<BusinessAnalysisResult> => {
         try {
             const response = await fetch(`${N8N_BASE_URL}/business-analyzer`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ link }),
+                body: JSON.stringify({ link, language }),
             });
 
             if (!response.ok) {
