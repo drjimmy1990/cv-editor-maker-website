@@ -160,16 +160,16 @@ export const BusinessAnalyzer: React.FC = () => {
                         <div>
                             <h3 className="font-bold text-xl text-charcoal mb-3">{t('businessAnalyzer.recommendation')}</h3>
                             <p className="text-gray-800 leading-relaxed font-medium text-lg">{result.recommendation}</p>
-                            <p className="mt-4 text-primary font-bold cursor-pointer hover:underline flex items-center gap-1" onClick={() => navigate('/consultation')}>
-                                {t('businessAnalyzer.strategicContact')} <ArrowRight size={16} />
-                            </p>
                         </div>
                     </div>
 
                     {/* Advanced Consultation CTA */}
-                    <div className="mt-8 flex justify-center">
+                    <div className="mt-8 flex flex-col items-center gap-4">
+                        <p className="text-primary font-bold flex items-center gap-1 text-lg">
+                            {t('businessAnalyzer.strategicContact')} <ArrowRight size={16} />
+                        </p>
                         <button
-                            onClick={() => navigate('/consultation')}
+                            onClick={() => navigate('/services/consultation')}
                             className="bg-primary hover:bg-blue-800 text-white px-8 py-3 rounded-xl font-bold text-lg shadow-lg transition-transform hover:scale-105 flex items-center gap-2"
                         >
                             {t('common.advancedConsultation')} <ArrowRight size={20} />
