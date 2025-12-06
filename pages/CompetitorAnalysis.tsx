@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search, TrendingUp, Award, ThumbsUp, ThumbsDown, AlertTriangle, Loader, Printer, ArrowRight, Star, Users, BarChart2, MapPin } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 // ⚠️ CRITICAL CHANGE: Ensure this imports 'api', NOT 'geminiService'
 import { api } from '../services/api';
 import { ComparisonResult } from '../types';
@@ -12,6 +13,7 @@ export const CompetitorAnalysis: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ComparisonResult | null>(null);
   const { t, isRTL } = useLanguage();
+  const navigate = useNavigate();
 
   const handleCompare = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -185,6 +187,16 @@ export const CompetitorAnalysis: React.FC = () => {
               <h3 className="font-bold text-lg text-charcoal mb-2">{t('analysis.recommendation')}</h3>
               <p className="text-gray-800 leading-relaxed font-medium">{result.recommendation}</p>
             </div>
+          </div>
+
+          {/* Advanced Consultation CTA */}
+          <div className="mt-8 flex justify-center">
+            <button
+              onClick={() => navigate('/consultation')}
+              className="bg-primary hover:bg-blue-800 text-white px-8 py-3 rounded-xl font-bold text-lg shadow-lg transition-transform hover:scale-105 flex items-center gap-2"
+            >
+              {t('common.advancedConsultation')} <ArrowRight size={20} />
+            </button>
           </div>
         </div>
       )}

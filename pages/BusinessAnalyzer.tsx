@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Search, TrendingUp, ThumbsUp, ThumbsDown, AlertTriangle, Loader, Printer, Star, Users, BarChart2, MapPin } from 'lucide-react';
+import { Search, TrendingUp, ThumbsUp, ThumbsDown, AlertTriangle, Loader, Printer, Star, Users, BarChart2, MapPin, ArrowRight } from 'lucide-react';
 import { api } from '../services/api';
 import { BusinessAnalysisResult } from '../types';
 import { useLanguage } from '../context/LanguageContext';
+import { useNavigate } from 'react-router-dom';
 
 export const BusinessAnalyzer: React.FC = () => {
     const [link, setLink] = useState('');
@@ -10,6 +11,7 @@ export const BusinessAnalyzer: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<BusinessAnalysisResult | null>(null);
     const { t } = useLanguage();
+    const navigate = useNavigate();
 
     const handleAnalyze = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -158,7 +160,20 @@ export const BusinessAnalyzer: React.FC = () => {
                         <div>
                             <h3 className="font-bold text-xl text-charcoal mb-3">{t('businessAnalyzer.recommendation')}</h3>
                             <p className="text-gray-800 leading-relaxed font-medium text-lg">{result.recommendation}</p>
+                            <p className="mt-4 text-primary font-bold cursor-pointer hover:underline flex items-center gap-1" onClick={() => navigate('/consultation')}>
+                                {t('businessAnalyzer.strategicContact')} <ArrowRight size={16} />
+                            </p>
                         </div>
+                    </div>
+
+                    {/* Advanced Consultation CTA */}
+                    <div className="mt-8 flex justify-center">
+                        <button
+                            onClick={() => navigate('/consultation')}
+                            className="bg-primary hover:bg-blue-800 text-white px-8 py-3 rounded-xl font-bold text-lg shadow-lg transition-transform hover:scale-105 flex items-center gap-2"
+                        >
+                            {t('common.advancedConsultation')} <ArrowRight size={20} />
+                        </button>
                     </div>
                 </div>
             )}

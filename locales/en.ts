@@ -16,6 +16,10 @@ export const en = {
     email: "Email Address",
     password: "Password",
     or: "OR",
+    createNewCv: "Create New CV",
+    advancedConsultation: "Request Advanced Consultation",
+    waqfNote: "وقف لي ولوالدي ولـ صديقي فيصل القرني ولجميع موتى المسلمين",
+    optimizeBtn: "Optimize My CV",
   },
   nav: {
     home: "Home",
@@ -60,7 +64,6 @@ export const en = {
     compAnalysisDesc: "Compare two business entities side-by-side using real-time sentiment data and performance metrics Using Google Maps and Google Reviews data",
     expertConsultTitle: "Expert Consultation",
     expertConsultDesc: "Book a session with industry veterans to solve complex business challenges and explore new markets.",
-    optimizeBtn: "Optimize My CV",
     compareBtn: "Start Comparison",
     consultBtn: "Request Session",
     cvCreatorTitle: "AI CV Creator",
@@ -307,5 +310,6 @@ export const en = {
     strengths: "Strengths",
     weaknesses: "Weaknesses",
     recommendation: "Strategic Recommendation",
+    strategicContact: "For more strategic recommendations contact us here",
   }
 };

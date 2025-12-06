@@ -169,7 +169,7 @@ export const Services: React.FC = () => {
                     onClick={() => navigate('/services/cv-optimizer')}
                     className="w-full bg-primary text-white hover:bg-blue-800 py-3 rounded-xl font-bold transition-colors flex justify-center items-center gap-2 mt-auto"
                   >
-                    {t('services.optimizeBtn')} <ArrowForward size={18} />
+                    {t('common.optimizeBtn')} <ArrowForward size={18} />
                   </button>
                 </div>
               </div>

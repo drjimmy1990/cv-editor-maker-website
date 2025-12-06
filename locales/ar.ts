@@ -16,6 +16,10 @@ export const ar = {
     email: "البريد الإلكتروني",
     password: "كلمة المرور",
     or: "أو",
+    createNewCv: "إنشاء سيرة ذاتية جديدة",
+    advancedConsultation: "طلب استشارة متقدمة",
+    waqfNote: "وقف لي ولوالدي ولـ صديقي فيصل القرني ولجميع موتى المسلمين",
+    optimizeBtn: "تحسين سيرتي الذاتية",
   },
   nav: {
     home: "الرئيسية",
@@ -307,5 +311,6 @@ export const ar = {
     strengths: "نقاط القوة",
     weaknesses: "نقاط الضعف",
     recommendation: "توصية استراتيجية",
+    strategicContact: "للمزيد من التوصيات الاستراتيجية تواصل معنا هنا",
   }
 };
