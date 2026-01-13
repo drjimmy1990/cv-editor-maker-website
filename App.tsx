@@ -21,6 +21,8 @@ const Pricing = React.lazy(() => import('./pages/Pricing').then(module => ({ def
 
 // For Default Exports (export default ComponentName)
 const Contact = React.lazy(() => import('./pages/Contact'));
+const Complaints = React.lazy(() => import('./pages/Complaints'));
+const RefundPolicy = React.lazy(() => import('./pages/RefundPolicy'));
 
 // --- Loading Spinner Component ---
 const PageLoader = () => (
@@ -51,6 +53,8 @@ const App: React.FC = () => {
                 <Route path="/services/competitor-analysis" element={<CompetitorAnalysis />} />
                 <Route path="/services/consultation" element={<Consultation />} />
                 <Route path="/admin" element={<Admin />} />
+                <Route path="/complaints" element={<Complaints />} />
+                <Route path="/refund-policy" element={<RefundPolicy />} />
               </Routes>
             </Suspense>
           </Layout>

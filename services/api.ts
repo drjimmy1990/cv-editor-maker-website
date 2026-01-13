@@ -1,7 +1,20 @@
 import { ComparisonResult, CvOptimizeResult, CvFinalizeResult, BusinessAnalysisResult } from '../types';
 
-// ✅ Ensure this is your correct n8n domain
-const N8N_BASE_URL = 'https://n8n.ai4eg.com/webhook';
+// ✅ Webhook Configuration - Uses environment variables with fallbacks
+const N8N_BASE_URL = import.meta.env.VITE_N8N_WEBHOOK_URL || 'https://n8n.ai4eg.com/webhook';
+
+// Webhook Endpoints (from .env or fallback to IDs)
+const WEBHOOKS = {
+    CONTACT_US: import.meta.env.VITE_WEBHOOK_CONTACT_US || '7b9efc27-c5c6-415a-9234-e2864618da9c',
+    CONSULTATION: import.meta.env.VITE_WEBHOOK_CONSULTATION || 'd925225a-2d68-4e9d-b2a1-7a8f3ed1b2aa',
+    COMPETITOR_ANALYSIS: import.meta.env.VITE_WEBHOOK_COMPETITOR_ANALYSIS || '787939db-5fa7-4001-8a7e-f61dfa4a8b7e',
+    PARSE_CV: import.meta.env.VITE_WEBHOOK_PARSE_CV || 'd1556c91-62fe-4291-aa0f-344423589a65',
+    OPTIMIZE_CV: import.meta.env.VITE_WEBHOOK_OPTIMIZE_CV || '877cb284-e755-42f3-867d-95637711c837',
+    FINALIZE_CV: import.meta.env.VITE_WEBHOOK_FINALIZE_CV || '27012432-3405-413c-948e-1e85a862feb9',
+    CREATE_CV: import.meta.env.VITE_WEBHOOK_CREATE_CV || '34bfbe04-c6c5-4347-986d-77dd75d79211',
+    BUSINESS_ANALYZER: import.meta.env.VITE_WEBHOOK_BUSINESS_ANALYZER || '2ef73a61-2c15-4f52-bf06-156d4cd93896',
+    SUBMIT_COMPLAINT: import.meta.env.VITE_WEBHOOK_SUBMIT_COMPLAINT || 'submit-complaint',
+};
 
 interface ContactPayload {
     email: string;
@@ -19,13 +32,20 @@ interface ConsultationPayload {
     supportNeeds: string;
 }
 
+interface ComplaintPayload {
+    name: string;
+    email: string;
+    phone?: string;
+    complaint: string;
+}
+
 export const api = {
     /**
      * Sends contact form data to n8n
      */
     submitContact: async (data: ContactPayload) => {
         try {
-            const response = await fetch(`${N8N_BASE_URL}/contact-us`, {
+            const response = await fetch(`${N8N_BASE_URL}/${WEBHOOKS.CONTACT_US}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -49,7 +69,7 @@ export const api = {
      */
     requestConsultation: async (data: ConsultationPayload) => {
         try {
-            const response = await fetch(`${N8N_BASE_URL}/consultation-request`, {
+            const response = await fetch(`${N8N_BASE_URL}/${WEBHOOKS.CONSULTATION}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -73,7 +93,7 @@ export const api = {
      */
     compareBusinesses: async (linkA: string, linkB: string, language: string = 'English'): Promise<ComparisonResult> => {
         try {
-            const response = await fetch(`${N8N_BASE_URL}/competitor-analysis`, {
+            const response = await fetch(`${N8N_BASE_URL}/${WEBHOOKS.COMPETITOR_ANALYSIS}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -97,7 +117,7 @@ export const api = {
      */
     analyzeBusiness: async (link: string, language: string = 'English'): Promise<BusinessAnalysisResult> => {
         try {
-            const response = await fetch(`${N8N_BASE_URL}/business-analyzer`, {
+            const response = await fetch(`${N8N_BASE_URL}/${WEBHOOKS.BUSINESS_ANALYZER}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -127,7 +147,7 @@ export const api = {
             formData.append('file', file);
             formData.append('userId', userId);
 
-            const response = await fetch(`${N8N_BASE_URL}/parse-cv`, {
+            const response = await fetch(`${N8N_BASE_URL}/${WEBHOOKS.PARSE_CV}`, {
                 method: 'POST',
                 body: formData,
             });
@@ -145,7 +165,7 @@ export const api = {
      */
     optimizeCv: async (sessionId: string, currentText: string, userPrompt: string): Promise<CvOptimizeResult> => {
         try {
-            const response = await fetch(`${N8N_BASE_URL}/optimize-cv`, {
+            const response = await fetch(`${N8N_BASE_URL}/${WEBHOOKS.OPTIMIZE_CV}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -174,7 +194,7 @@ export const api = {
      */
     finalizeCv: async (sessionId: string, userId: string): Promise<CvFinalizeResult> => {
         try {
-            const response = await fetch(`${N8N_BASE_URL}/finalize-cv`, {
+            const response = await fetch(`${N8N_BASE_URL}/${WEBHOOKS.FINALIZE_CV}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 // Sending both ID and UserID to match n8n requirements
@@ -190,7 +210,7 @@ export const api = {
     },
     createCvFromData: async (data: any, userId: string) => {
         try {
-            const response = await fetch(`${N8N_BASE_URL}/create-cv`, {
+            const response = await fetch(`${N8N_BASE_URL}/${WEBHOOKS.CREATE_CV}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -202,6 +222,30 @@ export const api = {
             return await response.json();
         } catch (error) {
             console.error("Create CV Error:", error);
+            throw error;
+        }
+    },
+
+    /**
+     * Sends a complaint to n8n
+     */
+    submitComplaint: async (data: ComplaintPayload) => {
+        try {
+            const response = await fetch(`${N8N_BASE_URL}/${WEBHOOKS.SUBMIT_COMPLAINT}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (!response.ok) {
+                throw new Error(`n8n Error: ${response.statusText}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error("Complaint Submission Error:", error);
             throw error;
         }
     }

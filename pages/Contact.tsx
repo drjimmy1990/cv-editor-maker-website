@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 // ✅ This import should now work correctly because api.ts has a named export.
 import { api } from '../services/api';
-import { CheckCircle, Mail, MapPin, Phone } from 'lucide-react';
+import { CheckCircle, Mail, Phone, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { Link } from 'react-router-dom';
 const Contact: React.FC = () => {
   const [formData, setFormData] = useState({ email: '', subject: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
@@ -98,37 +99,44 @@ const Contact: React.FC = () => {
         <div className="space-y-6">
           <div className="bg-primary text-white p-8 rounded-2xl shadow-lg relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-8 -mt-8"></div>
-            <h3 className="text-2xl font-bold mb-6 relative z-10">Get in Touch</h3>
+            <h3 className="text-2xl font-bold mb-6 relative z-10">{t('contact.getInTouch')}</h3>
             <ul className="space-y-6 relative z-10">
-              <li className="flex items-start gap-4">
-                <div className="bg-white/20 p-2 rounded-lg"><MapPin size={24} /></div>
-                <div>
-                  <h5 className="font-bold text-blue-100">Visit Us</h5>
-                  <p className="text-sm">Innovation Hub, Building 3<br />Dubai Internet City, UAE</p>
-                </div>
-              </li>
               <li className="flex items-start gap-4">
                 <div className="bg-white/20 p-2 rounded-lg"><Mail size={24} /></div>
                 <div>
-                  <h5 className="font-bold text-blue-100">Email</h5>
-                  <p className="text-sm font-mono">info@growthnexus.com</p>
+                  <h5 className="font-bold text-blue-100">{t('contact.emailLabel')}</h5>
+                  <p className="text-sm font-mono" dir="ltr">support@optimization.sa</p>
                 </div>
               </li>
               <li className="flex items-start gap-4">
                 <div className="bg-white/20 p-2 rounded-lg"><Phone size={24} /></div>
                 <div>
-                  <h5 className="font-bold text-blue-100">Call Us</h5>
-                  <p className="text-sm" dir="ltr">+971 4 123 4567</p>
+                  <h5 className="font-bold text-blue-100">{t('contact.callUs')}</h5>
+                  <p className="text-sm" dir="ltr">+966 54 480 0072</p>
                 </div>
               </li>
             </ul>
           </div>
           <div className="bg-gray-100 p-8 rounded-2xl border border-gray-200">
-            <h4 className="font-bold text-charcoal mb-2">Support Hours</h4>
-            <p className="text-gray-600 mb-4">Our dedicated support team is available to assist you during business hours.</p>
+            <h4 className="font-bold text-charcoal mb-2">{t('contact.supportHours')}</h4>
+            <p className="text-gray-600 mb-4">{t('contact.supportHoursDesc')}</p>
             <div className="flex justify-between text-sm text-gray-500 border-t border-gray-200 pt-4">
-              <span>Mon - Fri</span>
-              <span className="font-bold text-charcoal">9:00 AM - 6:00 PM (GST)</span>
+              <span>{t('contact.workDays')}</span>
+              <span className="font-bold text-charcoal" dir="ltr">10:00 AM - 10:00 PM (KSA)</span>
+            </div>
+          </div>
+          <div className="bg-amber-50 p-6 rounded-2xl border border-amber-200">
+            <div className="flex items-start gap-3">
+              <div className="bg-amber-500 p-2 rounded-full text-white">
+                <AlertTriangle size={20} />
+              </div>
+              <div>
+                <h4 className="font-bold text-charcoal mb-2">{t('contact.complaintsTitle')}</h4>
+                <p className="text-gray-600 text-sm mb-3">{t('contact.complaintsDesc')}</p>
+                <Link to="/complaints" className="text-primary font-medium hover:underline">
+                  {t('contact.goToComplaints')} →
+                </Link>
+              </div>
             </div>
           </div>
         </div>

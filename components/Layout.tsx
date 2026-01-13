@@ -234,21 +234,23 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
 
           <div>
-            <h4 className="text-white font-bold mb-4">{t('common.learnMore')}</h4>
             <ul className="space-y-2 text-sm">
               <li><button onClick={() => handleNavClick('/')} className="hover:text-secondary transition-colors">{t('nav.home')}</button></li>
               <li><button onClick={() => handleNavClick('/#about')} className="hover:text-secondary transition-colors">{t('nav.about')}</button></li>
               <li><button onClick={() => handleNavClick('/#services')} className="hover:text-secondary transition-colors">{t('nav.services')}</button></li>
               <li><button onClick={() => handleNavClick('/contact')} className="hover:text-secondary transition-colors">{t('nav.contact')}</button></li>
+              <li><button onClick={() => handleNavClick('/complaints')} className="hover:text-secondary transition-colors">{t('nav.complaints')}</button></li>
+              <li><button onClick={() => handleNavClick('/refund-policy')} className="hover:text-secondary transition-colors">{t('nav.refundPolicy')}</button></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-white font-bold mb-4">Contact</h4>
+            <h4 className="text-white font-bold mb-4">{t('nav.contact')}</h4>
             <ul className="space-y-2 text-sm">
-              <li dir="ltr">info@growthnexus.com</li>
-              <li dir="ltr">+971 4 123 4567</li>
-              <li>Dubai Internet City, UAE</li>
+              <li><bdi>support@optimization.sa</bdi></li>
+              <li><bdi>+966 54 480 0072</bdi></li>
+              <li>{t('footer.workingHours')}</li>
+              <li>{t('footer.location')}</li>
             </ul>
           </div>
         </div>
