@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Menu, X, Globe, User, LogOut, LayoutDashboard,
-  Briefcase, MessageSquare, Home as HomeIcon, Info, CreditCard
+  Briefcase, MessageSquare, Home as HomeIcon, Info, CreditCard, Zap
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
@@ -100,11 +100,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             {/* Logo */}
             <div className="flex-shrink-0 cursor-pointer" onClick={() => handleNavClick('/')}>
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center shadow-lg">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" className="w-5 h-5">
-                    <path d="M12 19V5M5 12l7-7 7 7" />
-                  </svg>
-                </div>
+                <img src="/images/logo.jpeg" alt="Optimization" className="h-10 w-auto rounded-lg" />
                 <span className="font-bold text-xl tracking-tight hover:text-gray-200 transition-colors">
                   {t('common.growthNexus')}
                 </span>
@@ -144,12 +140,20 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               </button>
 
               {user ? (
-                <div className="flex items-center gap-3 bg-blue-900/50 px-3 py-1 rounded-full border border-blue-700">
-                  <User size={16} className="text-secondary" />
-                  <span className="text-xs font-light tracking-wide">{user.full_name || user.email?.split('@')[0]}</span>
-                  <button onClick={handleLogout} className="text-gray-400 hover:text-white transition-colors" title={t('common.signOut')}>
-                    <LogOut size={16} />
-                  </button>
+                <div className="flex items-center gap-3">
+                  {/* User Info */}
+                  <div className="flex items-center gap-2 bg-blue-900/50 px-3 py-1 rounded-full border border-blue-700">
+                    <User size={16} className="text-secondary" />
+                    <span className="text-xs font-light tracking-wide">{user.full_name || user.email?.split('@')[0]}</span>
+                    <button onClick={handleLogout} className="text-gray-400 hover:text-white transition-colors" title={t('common.signOut')}>
+                      <LogOut size={16} />
+                    </button>
+                  </div>
+                  {/* Credits Badge */}
+                  <div className="flex items-center gap-1.5 bg-yellow-500/20 px-3 py-1.5 rounded-full border border-yellow-500/50">
+                    <Zap size={14} className="text-yellow-400" />
+                    <span className="text-sm font-bold text-yellow-300">{user.credits_cv ?? 0}</span>
+                  </div>
                 </div>
               ) : (
                 <button
@@ -221,11 +225,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center">
-                <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" className="w-5 h-5">
-                  <path d="M12 19V5M5 12l7-7 7 7" />
-                </svg>
-              </div>
+              <img src="/images/logo.jpeg" alt="Optimization" className="h-10 w-auto rounded-lg" />
               <span className="font-bold text-xl text-white">{t('common.growthNexus')}</span>
             </div>
             <p className="text-sm text-gray-400 max-w-sm leading-relaxed">
