@@ -41,7 +41,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   ];
 
   if (user?.role === 'admin') {
-    navLinks.push({ name: t('nav.admin'), path: '/admin', icon: <LayoutDashboard size={18} /> });
+    navLinks.push({ name: t('nav.adminLink'), path: '/admin', icon: <LayoutDashboard size={18} /> });
   }
 
   const handleNavClick = (path: string) => {
@@ -116,7 +116,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <button
                       key={link.name}
                       onClick={() => handleNavClick(link.path)}
-                      className={`px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors duration-200
+                      className={`px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors duration-200 whitespace-nowrap
                         ${isActive
                           ? 'bg-secondary text-white shadow-sm'
                           : 'text-gray-300 hover:bg-blue-800 hover:text-white'}`}
