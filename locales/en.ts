@@ -360,6 +360,7 @@ export const en = {
     tabUsers: "Users",
     tabConsultations: "Consultations",
     tabContact: "Contact",
+    tabComplaints: "Complaints",
     tabCvSessions: "CV Sessions",
     // Dashboard
     totalUsers: "Total Users",
@@ -402,5 +403,16 @@ export const en = {
     originalPdf: "Original PDF",
     finalPdf: "Final PDF",
     noCvSessions: "No CV sessions found.",
+    // Complaints
+    complaintsTitle: "Customer Complaints",
+    complaintDetails: "Complaint Details",
+    noComplaints: "No complaints found.",
+    // Email Reply
+    replyToEmail: "Reply to Email",
+    yourReply: "Your Reply",
+    sendReply: "Send Reply",
+    sending: "Sending...",
+    replySent: "Reply sent successfully!",
+    replyFailed: "Failed to send reply. Please try again.",
   }
 };

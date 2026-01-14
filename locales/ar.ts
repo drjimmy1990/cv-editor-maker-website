@@ -361,6 +361,7 @@ export const ar = {
     tabUsers: "المستخدمون",
     tabConsultations: "الاستشارات",
     tabContact: "رسائل التواصل",
+    tabComplaints: "الشكاوى",
     tabCvSessions: "جلسات السيرة الذاتية",
     // Dashboard
     totalUsers: "إجمالي المستخدمين",
@@ -403,5 +404,16 @@ export const ar = {
     originalPdf: "PDF الأصلي",
     finalPdf: "PDF النهائي",
     noCvSessions: "لا توجد جلسات سيرة ذاتية.",
+    // Complaints
+    complaintsTitle: "شكاوى العملاء",
+    complaintDetails: "تفاصيل الشكوى",
+    noComplaints: "لا توجد شكاوى.",
+    // Email Reply
+    replyToEmail: "الرد على البريد الإلكتروني",
+    yourReply: "ردك",
+    sendReply: "إرسال الرد",
+    sending: "جاري الإرسال...",
+    replySent: "تم إرسال الرد بنجاح!",
+    replyFailed: "فشل في إرسال الرد. يرجى المحاولة مرة أخرى.",
   }
 };

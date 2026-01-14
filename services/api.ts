@@ -14,6 +14,7 @@ const WEBHOOKS = {
     CREATE_CV: import.meta.env.VITE_WEBHOOK_CREATE_CV || 'create-cv',
     BUSINESS_ANALYZER: import.meta.env.VITE_WEBHOOK_BUSINESS_ANALYZER || 'business-analyzer',
     SUBMIT_COMPLAINT: import.meta.env.VITE_WEBHOOK_SUBMIT_COMPLAINT || 'submit-complaint',
+    SEND_EMAIL_REPLY: import.meta.env.VITE_WEBHOOK_SEND_EMAIL_REPLY || 'send-email-reply',
 };
 
 interface ContactPayload {
@@ -246,6 +247,30 @@ export const api = {
             return await response.json();
         } catch (error) {
             console.error("Complaint Submission Error:", error);
+            throw error;
+        }
+    },
+
+    /**
+     * Sends an email reply to a customer via n8n SMTP
+     */
+    sendEmailReply: async (data: { to: string; subject: string; message: string; type?: string }) => {
+        try {
+            const response = await fetch(`${N8N_BASE_URL}/${WEBHOOKS.SEND_EMAIL_REPLY}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (!response.ok) {
+                throw new Error(`n8n Error: ${response.statusText}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error("Email Reply Error:", error);
             throw error;
         }
     }

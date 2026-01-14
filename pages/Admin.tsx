@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../services/supabaseClient';
+import { api } from '../services/api';
 import {
   Users, MessageSquare, AlertCircle, X, Check, Eye,
   LayoutDashboard, Mail, FileText, Zap, Edit2, Save,
@@ -47,7 +48,7 @@ interface CvSession {
   created_at: string;
 }
 
-type TabType = 'dashboard' | 'users' | 'consultations' | 'contact' | 'cv-sessions';
+type TabType = 'dashboard' | 'users' | 'consultations' | 'contact' | 'complaints' | 'cv-sessions';
 
 export const Admin: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
@@ -59,8 +60,13 @@ export const Admin: React.FC = () => {
   const [selectedRequest, setSelectedRequest] = useState<ConsultationRequest | null>(null);
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [selectedContact, setSelectedContact] = useState<ContactSubmission | null>(null);
+  const [selectedComplaint, setSelectedComplaint] = useState<ContactSubmission | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  // Email Reply States
+  const [showReplyForm, setShowReplyForm] = useState(false);
+  const [replyMessage, setReplyMessage] = useState('');
+  const [isSendingReply, setIsSendingReply] = useState(false);
   const { user } = useAuth();
   const { t, isRTL } = useLanguage();
 
@@ -69,8 +75,13 @@ export const Admin: React.FC = () => {
     { id: 'users' as TabType, label: t('admin.tabUsers'), icon: <Users size={18} /> },
     { id: 'consultations' as TabType, label: t('admin.tabConsultations'), icon: <MessageSquare size={18} /> },
     { id: 'contact' as TabType, label: t('admin.tabContact'), icon: <Mail size={18} /> },
+    { id: 'complaints' as TabType, label: t('admin.tabComplaints'), icon: <AlertCircle size={18} /> },
     { id: 'cv-sessions' as TabType, label: t('admin.tabCvSessions'), icon: <FileText size={18} /> },
   ];
+
+  // Filter complaints from contacts (subject starts with 'COMPLAINT')
+  const complaints = contacts.filter(c => c.subject?.toUpperCase().startsWith('COMPLAINT'));
+  const regularContacts = contacts.filter(c => !c.subject?.toUpperCase().startsWith('COMPLAINT'));
 
   useEffect(() => {
     if (user?.role === 'admin') {
@@ -231,6 +242,28 @@ export const Admin: React.FC = () => {
       setSelectedContact(null);
     } catch (err: any) {
       alert("Error: " + err.message);
+    }
+  };
+
+  const handleSendReply = async (toEmail: string, subject: string, type: 'contact' | 'consultation') => {
+    if (!replyMessage.trim()) return;
+    setIsSendingReply(true);
+    try {
+      await api.sendEmailReply({
+        to: toEmail,
+        subject: `Re: ${subject || 'Your Inquiry'}`,
+        message: replyMessage,
+        type,
+      });
+      alert(t('admin.replySent'));
+      setReplyMessage('');
+      setShowReplyForm(false);
+      if (type === 'contact') setSelectedContact(null);
+      if (type === 'consultation') setSelectedRequest(null);
+    } catch (err: any) {
+      alert(t('admin.replyFailed') + ': ' + err.message);
+    } finally {
+      setIsSendingReply(false);
     }
   };
 
@@ -477,7 +510,7 @@ export const Admin: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {contacts.map((c) => (
+                {regularContacts.map((c) => (
                   <tr key={c.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 text-gray-500 whitespace-nowrap">{new Date(c.created_at).toLocaleDateString()}</td>
                     <td className="px-6 py-4 text-charcoal font-medium">{c.email}</td>
@@ -500,11 +533,68 @@ export const Admin: React.FC = () => {
                     </td>
                   </tr>
                 ))}
-                {contacts.length === 0 && (
+                {regularContacts.length === 0 && (
                   <tr>
                     <td colSpan={4} className="px-6 py-12 text-center text-gray-400">
                       <Mail size={32} className="mx-auto opacity-20 mb-2" />
                       <p>{t('admin.noContacts')}</p>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Complaints Tab */}
+      {activeTab === 'complaints' && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200 bg-red-50">
+            <h2 className="font-bold text-charcoal flex items-center gap-2">
+              <AlertCircle size={20} className="text-red-500" />
+              {t('admin.complaintsTitle')}
+            </h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-100 text-gray-600 uppercase border-b border-gray-200">
+                <tr>
+                  <th className="px-6 py-4 font-semibold text-start w-32">{t('admin.date')}</th>
+                  <th className="px-6 py-4 font-semibold text-start">{t('common.email')}</th>
+                  <th className="px-6 py-4 font-semibold text-start">{t('admin.subject')}</th>
+                  <th className="px-6 py-4 font-semibold text-center w-32">{t('admin.action')}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {complaints.map((c) => (
+                  <tr key={c.id} className="hover:bg-red-50/50 transition-colors">
+                    <td className="px-6 py-4 text-gray-500 whitespace-nowrap">{new Date(c.created_at).toLocaleDateString()}</td>
+                    <td className="px-6 py-4 text-charcoal font-medium">{c.email}</td>
+                    <td className="px-6 py-4 text-red-600 font-medium truncate max-w-xs">{c.subject || '-'}</td>
+                    <td className="px-6 py-4 text-center flex justify-center gap-2">
+                      <button
+                        onClick={() => setSelectedComplaint(c)}
+                        className="p-2 text-gray-400 hover:text-primary hover:bg-blue-50 rounded-full transition-all"
+                        title={t('common.viewDetails')}
+                      >
+                        <Eye size={18} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteContact(c.id)}
+                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                        title={t('admin.delete')}
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {complaints.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="px-6 py-12 text-center text-gray-400">
+                      <AlertCircle size={32} className="mx-auto opacity-20 mb-2" />
+                      <p>{t('admin.noComplaints')}</p>
                     </td>
                   </tr>
                 )}
@@ -605,26 +695,67 @@ export const Admin: React.FC = () => {
                 <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{t('admin.message')}</label>
                 <p className="text-gray-700 whitespace-pre-wrap leading-relaxed text-sm">{selectedRequest.message}</p>
               </div>
+
+              {/* Reply Form */}
+              {showReplyForm && (
+                <div className="border-t border-gray-200 pt-4">
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{t('admin.yourReply')}</label>
+                  <textarea
+                    value={replyMessage}
+                    onChange={(e) => setReplyMessage(e.target.value)}
+                    rows={4}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
+                    placeholder={t('admin.yourReply') + '...'}
+                  />
+                </div>
+              )}
             </div>
 
-            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-              {selectedRequest.status === 'pending' && (
-                <button
-                  onClick={() => handleUpdateConsultationStatus(selectedRequest.id, 'reviewed')}
-                  disabled={isUpdating}
-                  className="bg-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 shadow-sm disabled:opacity-50"
-                >
-                  {isUpdating ? t('common.loading') : <><Check size={16} /> {t('admin.markReviewed')}</>}
-                </button>
-              )}
-              {selectedRequest.status !== 'closed' && (
-                <button
-                  onClick={() => handleUpdateConsultationStatus(selectedRequest.id, 'closed')}
-                  disabled={isUpdating}
-                  className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-lg text-sm font-bold disabled:opacity-50"
-                >
-                  {t('admin.closeRequest')}
-                </button>
+            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex flex-wrap justify-end gap-3">
+              {showReplyForm ? (
+                <>
+                  <button
+                    onClick={() => { setShowReplyForm(false); setReplyMessage(''); }}
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold"
+                  >
+                    {t('common.back')}
+                  </button>
+                  <button
+                    onClick={() => handleSendReply(selectedRequest.email, selectedRequest.subject, 'consultation')}
+                    disabled={isSendingReply || !replyMessage.trim()}
+                    className="bg-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 disabled:opacity-50"
+                  >
+                    <Mail size={16} />
+                    {isSendingReply ? t('admin.sending') : t('admin.sendReply')}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setShowReplyForm(true)}
+                    className="bg-secondary hover:bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2"
+                  >
+                    <Mail size={16} /> {t('admin.reply')}
+                  </button>
+                  {selectedRequest.status === 'pending' && (
+                    <button
+                      onClick={() => handleUpdateConsultationStatus(selectedRequest.id, 'reviewed')}
+                      disabled={isUpdating}
+                      className="bg-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 shadow-sm disabled:opacity-50"
+                    >
+                      {isUpdating ? t('common.loading') : <><Check size={16} /> {t('admin.markReviewed')}</>}
+                    </button>
+                  )}
+                  {selectedRequest.status !== 'closed' && (
+                    <button
+                      onClick={() => handleUpdateConsultationStatus(selectedRequest.id, 'closed')}
+                      disabled={isUpdating}
+                      className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-lg text-sm font-bold disabled:opacity-50"
+                    >
+                      {t('admin.closeRequest')}
+                    </button>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -741,21 +872,146 @@ export const Admin: React.FC = () => {
                 <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{t('admin.message')}</label>
                 <p className="text-gray-700 whitespace-pre-wrap leading-relaxed text-sm">{selectedContact.message || '-'}</p>
               </div>
+
+              {/* Reply Form */}
+              {showReplyForm && (
+                <div className="border-t border-gray-200 pt-4">
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{t('admin.yourReply')}</label>
+                  <textarea
+                    value={replyMessage}
+                    onChange={(e) => setReplyMessage(e.target.value)}
+                    rows={4}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
+                    placeholder={t('admin.yourReply') + '...'}
+                  />
+                </div>
+              )}
             </div>
 
             <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-              <a
-                href={`mailto:${selectedContact.email}`}
-                className="bg-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2"
-              >
-                <Mail size={16} /> {t('admin.reply')}
-              </a>
-              <button
-                onClick={() => { handleDeleteContact(selectedContact.id); }}
-                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2"
-              >
-                <Trash2 size={16} /> {t('admin.delete')}
+              {showReplyForm ? (
+                <>
+                  <button
+                    onClick={() => { setShowReplyForm(false); setReplyMessage(''); }}
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold"
+                  >
+                    {t('common.back')}
+                  </button>
+                  <button
+                    onClick={() => handleSendReply(selectedContact.email, selectedContact.subject || '', 'contact')}
+                    disabled={isSendingReply || !replyMessage.trim()}
+                    className="bg-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 disabled:opacity-50"
+                  >
+                    <Mail size={16} />
+                    {isSendingReply ? t('admin.sending') : t('admin.sendReply')}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setShowReplyForm(true)}
+                    className="bg-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2"
+                  >
+                    <Mail size={16} /> {t('admin.reply')}
+                  </button>
+                  <button
+                    onClick={() => { handleDeleteContact(selectedContact.id); }}
+                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2"
+                  >
+                    <Trash2 size={16} /> {t('admin.delete')}
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Complaint Details Modal */}
+      {selectedComplaint && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full overflow-hidden animate-slideUp">
+            <div className="bg-red-50 px-6 py-4 border-b border-red-200 flex justify-between items-center">
+              <h3 className="font-bold text-lg text-charcoal flex items-center gap-2">
+                <AlertCircle className="text-red-500" size={20} />
+                {t('admin.complaintDetails')}
+              </h3>
+              <button onClick={() => { setSelectedComplaint(null); setShowReplyForm(false); setReplyMessage(''); }} className="text-gray-400 hover:text-red-500 transition-colors">
+                <X size={20} />
               </button>
+            </div>
+
+            <div className="p-6 space-y-5">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{t('admin.from')}</label>
+                  <p className="text-charcoal font-medium text-sm">{selectedComplaint.email}</p>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{t('admin.date')}</label>
+                  <p className="text-charcoal font-medium text-sm">{new Date(selectedComplaint.created_at).toLocaleDateString()}</p>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{t('admin.subject')}</label>
+                <p className="text-red-600 font-bold text-lg">{selectedComplaint.subject || '-'}</p>
+              </div>
+
+              <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{t('admin.message')}</label>
+                <p className="text-gray-700 whitespace-pre-wrap leading-relaxed text-sm">{selectedComplaint.message || '-'}</p>
+              </div>
+
+              {/* Reply Form */}
+              {showReplyForm && (
+                <div className="border-t border-gray-200 pt-4">
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{t('admin.yourReply')}</label>
+                  <textarea
+                    value={replyMessage}
+                    onChange={(e) => setReplyMessage(e.target.value)}
+                    rows={4}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
+                    placeholder={t('admin.yourReply') + '...'}
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+              {showReplyForm ? (
+                <>
+                  <button
+                    onClick={() => { setShowReplyForm(false); setReplyMessage(''); }}
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold"
+                  >
+                    {t('common.back')}
+                  </button>
+                  <button
+                    onClick={() => handleSendReply(selectedComplaint.email, selectedComplaint.subject || '', 'contact')}
+                    disabled={isSendingReply || !replyMessage.trim()}
+                    className="bg-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 disabled:opacity-50"
+                  >
+                    <Mail size={16} />
+                    {isSendingReply ? t('admin.sending') : t('admin.sendReply')}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setShowReplyForm(true)}
+                    className="bg-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2"
+                  >
+                    <Mail size={16} /> {t('admin.reply')}
+                  </button>
+                  <button
+                    onClick={() => { handleDeleteContact(selectedComplaint.id); setSelectedComplaint(null); }}
+                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2"
+                  >
+                    <Trash2 size={16} /> {t('admin.delete')}
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
