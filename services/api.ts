@@ -67,14 +67,14 @@ export const api = {
     /**
      * Sends a consultation request to n8n
      */
-    requestConsultation: async (data: ConsultationPayload) => {
+    requestConsultation: async (data: ConsultationPayload, profileId: string) => {
         try {
             const response = await fetch(`${N8N_BASE_URL}/${WEBHOOKS.CONSULTATION}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(data),
+                body: JSON.stringify({ ...data, profile_id: profileId }),
             });
 
             if (!response.ok) {
@@ -91,14 +91,14 @@ export const api = {
     /**
      * Sends two business URLs to n8n for AI analysis
      */
-    compareBusinesses: async (linkA: string, linkB: string, language: string = 'English'): Promise<ComparisonResult> => {
+    compareBusinesses: async (linkA: string, linkB: string, language: string = 'English', profileId: string): Promise<ComparisonResult> => {
         try {
             const response = await fetch(`${N8N_BASE_URL}/${WEBHOOKS.COMPETITOR_ANALYSIS}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ linkA, linkB, language }),
+                body: JSON.stringify({ linkA, linkB, language, profile_id: profileId }),
             });
 
             if (!response.ok) {
@@ -115,14 +115,14 @@ export const api = {
     /**
      * Sends a single business URL to n8n for AI analysis
      */
-    analyzeBusiness: async (link: string, language: string = 'English'): Promise<BusinessAnalysisResult> => {
+    analyzeBusiness: async (link: string, language: string = 'English', profileId: string): Promise<BusinessAnalysisResult> => {
         try {
             const response = await fetch(`${N8N_BASE_URL}/${WEBHOOKS.BUSINESS_ANALYZER}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ link, language }),
+                body: JSON.stringify({ link, language, profile_id: profileId }),
             });
 
             if (!response.ok) {

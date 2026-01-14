@@ -5,14 +5,25 @@ import {
   Briefcase, Building2, User, ChevronRight, PenTool, Activity
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 export const Services: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryParam = searchParams.get('category');
   const { t, isRTL } = useLanguage();
+  const { user } = useAuth();
   const ArrowForward = isRTL ? ArrowLeft : ArrowRight;
   const ArrowBack = isRTL ? ArrowRight : ArrowLeft;
+
+  // Handle navigation to service pages - redirect to login if not authenticated
+  const handleServiceNavigation = (path: string) => {
+    if (!user) {
+      navigate('/login', { state: { from: { pathname: path } } });
+    } else {
+      navigate(path);
+    }
+  };
 
   // 'selection' | 'individuals' | 'companies'
   const [viewMode, setViewMode] = useState<string>('selection');
@@ -166,7 +177,7 @@ export const Services: React.FC = () => {
                     {t('services.cvOptDesc')}
                   </p>
                   <button
-                    onClick={() => navigate('/services/cv-optimizer')}
+                    onClick={() => handleServiceNavigation('/services/cv-optimizer')}
                     className="w-full bg-primary text-white hover:bg-blue-800 py-3 rounded-xl font-bold transition-colors flex justify-center items-center gap-2 mt-auto"
                   >
                     {t('common.optimizeBtn')} <ArrowForward size={18} />
@@ -188,7 +199,7 @@ export const Services: React.FC = () => {
                     {t('services.cvCreatorDesc')}
                   </p>
                   <button
-                    onClick={() => navigate('/services/cv-creator')}
+                    onClick={() => handleServiceNavigation('/services/cv-creator')}
                     className="w-full bg-secondary text-white hover:bg-teal-600 py-3 rounded-xl font-bold transition-colors flex justify-center items-center gap-2 mt-auto"
                   >
                     {t('services.buildCvBtn')} <ArrowForward size={18} />
@@ -238,7 +249,7 @@ export const Services: React.FC = () => {
                     {t('services.compAnalysisDesc')}
                   </p>
                   <button
-                    onClick={() => navigate('/services/competitor-analysis')}
+                    onClick={() => handleServiceNavigation('/services/competitor-analysis')}
                     className="w-full border-2 border-primary text-primary hover:bg-primary hover:text-white py-3 rounded-xl font-bold transition-colors flex justify-center items-center gap-2 mt-auto"
                   >
                     {t('services.compareBtn')} <ArrowForward size={18} />
@@ -258,7 +269,7 @@ export const Services: React.FC = () => {
                     {t('businessAnalyzer.subtitle')}
                   </p>
                   <button
-                    onClick={() => navigate('/services/business-analyzer')}
+                    onClick={() => handleServiceNavigation('/services/business-analyzer')}
                     className="w-full border-2 border-primary text-primary hover:bg-primary hover:text-white py-3 rounded-xl font-bold transition-colors flex justify-center items-center gap-2 mt-auto"
                   >
                     {t('businessAnalyzer.analyzeNow')} <ArrowForward size={18} />
@@ -278,7 +289,7 @@ export const Services: React.FC = () => {
                     {t('services.expertConsultDesc')}
                   </p>
                   <button
-                    onClick={() => navigate('/services/consultation')}
+                    onClick={() => handleServiceNavigation('/services/consultation')}
                     className="w-full border-2 border-primary text-primary hover:bg-primary hover:text-white py-3 rounded-xl font-bold transition-colors flex justify-center items-center gap-2 mt-auto"
                   >
                     {t('services.consultBtn')} <ArrowForward size={18} />

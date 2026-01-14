@@ -112,14 +112,13 @@ export const Home: React.FC = () => {
                 {/* Map Image Placeholder */}
                 <div className="h-72 relative bg-slate-200">
                   <img
-                    src="https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=2074&auto=format&fit=crop"
-                    alt="Dubai Map Visual"
+                    src="https://images.unsplash.com/photo-1586724237569-f3d0c1dee8c6?q=80&w=2070&auto=format&fit=crop"
+                    alt="Riyadh Skyline"
                     className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                   <div className="absolute bottom-6 start-6 text-white">
-                    <p className="font-bold text-lg flex items-center gap-2"><MapPin size={18} className="text-secondary" /> Dubai Internet City</p>
-                    <p className="text-sm text-gray-200">Innovation Hub, Building 3</p>
+                    <p className="font-bold text-lg flex items-center gap-2"><MapPin size={18} className="text-secondary" /> {t('footer.location')}</p>
                   </div>
                 </div>
                 {/* Contact Details */}
@@ -130,8 +129,8 @@ export const Home: React.FC = () => {
                         <Mail size={20} />
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 uppercase font-semibold">Email Us</p>
-                        <p className="font-medium text-charcoal">info@growthnexus.com</p>
+                        <p className="text-xs text-gray-500 uppercase font-semibold">{t('contact.emailLabel')}</p>
+                        <p className="font-medium text-charcoal">support@optimization.sa</p>
                       </div>
                     </div>
                     <ChevronRight size={16} className={`text-gray-400 group-hover:text-primary ${isRTL ? 'rotate-180' : ''}`} />
@@ -143,8 +142,8 @@ export const Home: React.FC = () => {
                         <Phone size={20} />
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 uppercase font-semibold">Call Us</p>
-                        <p className="font-medium text-charcoal" dir="ltr">+971 4 123 4567</p>
+                        <p className="text-xs text-gray-500 uppercase font-semibold">{t('contact.callUs')}</p>
+                        <p className="font-medium text-charcoal" dir="ltr">+966 54 480 0072</p>
                       </div>
                     </div>
                     <ChevronRight size={16} className={`text-gray-400 group-hover:text-primary ${isRTL ? 'rotate-180' : ''}`} />
