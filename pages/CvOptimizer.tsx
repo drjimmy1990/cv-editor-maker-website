@@ -5,6 +5,7 @@ import { supabase } from '../services/supabaseClient';
 import { ChatMessage, DbChatMessage, DbCvSession } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { PdfViewer } from '../components/PdfViewer';
 
 export const CvOptimizer: React.FC = () => {
   const { user } = useAuth();
@@ -350,17 +351,9 @@ export const CvOptimizer: React.FC = () => {
                 <p className="text-gray-500 font-medium">Extracting text...</p>
               </div>
             ) : (
-              <div
-                className="w-full h-full bg-gray-300 relative"
-                style={{ WebkitOverflowScrolling: 'touch', overflow: 'auto' }}
-              >
+              <div className="w-full h-full">
                 {pdfPreview && (
-                  <iframe
-                    src={`${pdfPreview}#toolbar=0&navpanes=0`}
-                    className="w-full h-full border-none"
-                    style={{ minHeight: '100%', WebkitOverflowScrolling: 'touch' }}
-                    title="CV Preview"
-                  />
+                  <PdfViewer pdfUrl={pdfPreview} className="h-full" />
                 )}
               </div>
             )}
