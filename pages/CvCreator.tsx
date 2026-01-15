@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { Plus, X, Save, Loader, Briefcase, GraduationCap, Award, Globe, Code, FileText, User, Trash2, Layout, CheckCircle, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plus, X, Save, Loader, Briefcase, GraduationCap, Award, Globe, Code, FileText, User, Trash2, Layout, CheckCircle, ArrowRight, Download, History, Clock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
+import { supabase } from '../services/supabaseClient';
 import { CvData, CustomSection } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +14,15 @@ export const CvCreator: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+    const [cvHistory, setCvHistory] = useState<Array<{
+        id: string;
+        created_at: string;
+        final_pdf_url: string | null;
+        latest_draft_url: string | null;
+        original_pdf_url: string | null;
+        status: string;
+    }>>([]);
+    const [loadingHistory, setLoadingHistory] = useState(true);
 
     // Track which optional sections are visible
     const [activeSections, setActiveSections] = useState({
@@ -43,6 +53,32 @@ export const CvCreator: React.FC = () => {
         references: '',
         customSections: []
     });
+
+    // Fetch CV history
+    useEffect(() => {
+        const fetchCvHistory = async () => {
+            if (!user) {
+                setLoadingHistory(false);
+                return;
+            }
+            try {
+                const { data, error } = await supabase
+                    .from('cv_sessions')
+                    .select('id, created_at, final_pdf_url, latest_draft_url, original_pdf_url, status')
+                    .eq('user_id', user.id)
+                    .order('created_at', { ascending: false })
+                    .limit(10);
+
+                if (error) throw error;
+                setCvHistory(data || []);
+            } catch (err) {
+                console.error('Failed to fetch CV history:', err);
+            } finally {
+                setLoadingHistory(false);
+            }
+        };
+        fetchCvHistory();
+    }, [user, showSuccess]); // Refetch when showSuccess changes (after new CV created)
 
     // --- Handlers ---
 
@@ -261,6 +297,69 @@ export const CvCreator: React.FC = () => {
                         <h1 className="text-4xl font-bold text-charcoal mb-3">{t('cvCreator.pageTitle')}</h1>
                         <p className="text-gray-600 text-lg">{t('cvCreator.pageSubtitle')}</p>
                     </div>
+
+                    {/* My CV History Section */}
+                    {user && cvHistory.length > 0 && (
+                        <div className="mb-8 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                            <div className="px-6 py-4 bg-gradient-to-r from-primary to-blue-700 flex items-center justify-between">
+                                <h3 className="font-bold text-white flex items-center gap-2">
+                                    <History size={20} />
+                                    {t('cvCreator.myCvs')}
+                                </h3>
+                                <span className="text-white/80 text-sm">{cvHistory.length} {t('cvCreator.cvsCreated')}</span>
+                            </div>
+                            <div className="divide-y divide-gray-100 max-h-64 overflow-y-auto">
+                                {loadingHistory ? (
+                                    <div className="p-6 text-center text-gray-400">
+                                        <Loader className="animate-spin mx-auto mb-2" size={24} />
+                                        <p>{t('common.loading')}</p>
+                                    </div>
+                                ) : (
+                                    cvHistory.map((cv) => {
+                                        const downloadLink = cv.final_pdf_url || cv.latest_draft_url || cv.original_pdf_url;
+                                        return (
+                                            <div key={cv.id} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center">
+                                                        <FileText size={18} className="text-primary" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-medium text-charcoal flex items-center gap-2">
+                                                            CV - {new Date(cv.created_at).toLocaleDateString()}
+                                                            <span className={`text-xs px-2 py-0.5 rounded-full ${cv.status === 'downloaded' ? 'bg-green-100 text-green-700' :
+                                                                    cv.status === 'active' ? 'bg-blue-100 text-blue-700' :
+                                                                        'bg-gray-100 text-gray-600'
+                                                                }`}>
+                                                                {cv.status}
+                                                            </span>
+                                                        </p>
+                                                        <p className="text-xs text-gray-400 flex items-center gap-1">
+                                                            <Clock size={12} />
+                                                            {new Date(cv.created_at).toLocaleTimeString()}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                {downloadLink ? (
+                                                    <a
+                                                        href={downloadLink}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        download
+                                                        className="flex items-center gap-1.5 px-4 py-2 bg-secondary hover:bg-teal-600 text-white text-sm font-bold rounded-lg transition-colors"
+                                                    >
+                                                        <Download size={16} />
+                                                        {t('cvCreator.downloadCv')}
+                                                    </a>
+                                                ) : (
+                                                    <span className="text-xs text-gray-400 italic">{t('cvCreator.noPdfAvailable')}</span>
+                                                )}
+                                            </div>
+                                        );
+                                    })
+                                )}
+                            </div>
+                        </div>
+                    )}
 
                     <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
 
