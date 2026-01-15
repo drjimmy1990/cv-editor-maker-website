@@ -350,11 +350,15 @@ export const CvOptimizer: React.FC = () => {
                 <p className="text-gray-500 font-medium">Extracting text...</p>
               </div>
             ) : (
-              <div className="w-full h-full bg-gray-300 relative">
+              <div
+                className="w-full h-full bg-gray-300 relative"
+                style={{ WebkitOverflowScrolling: 'touch', overflow: 'auto' }}
+              >
                 {pdfPreview && (
                   <iframe
                     src={`${pdfPreview}#toolbar=0&navpanes=0`}
                     className="w-full h-full border-none"
+                    style={{ minHeight: '100%', WebkitOverflowScrolling: 'touch' }}
                     title="CV Preview"
                   />
                 )}

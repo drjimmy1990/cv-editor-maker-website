@@ -266,6 +266,7 @@ export const en = {
     signUp: "Sign Up",
   },
   cvCreator: {
+    pageTitle: "AI CV Creator",
     title: "CV Builder",
     pageSubtitle: "Fill out the form below to create your professional resume from scratch.",
     personalInfo: "Personal Information",
@@ -328,6 +329,7 @@ export const en = {
     fieldValue: "Value (e.g. New York)",
     removeField: "Remove Field",
     cvGeneratedSuccess: "CV Generated Successfully!",
+    downloadCv: "Download CV",
     cvDownloadedMessage: "Your CV has been downloaded. For further optimization and AI-powered enhancements, try our CV Optimizer.",
     goToOptimizer: "Go to CV Optimizer",
     continueEditing: "Continue Editing",

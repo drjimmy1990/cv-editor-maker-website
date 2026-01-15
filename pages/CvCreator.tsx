@@ -12,6 +12,7 @@ export const CvCreator: React.FC = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+    const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
 
     // Track which optional sections are visible
     const [activeSections, setActiveSections] = useState({
@@ -175,6 +176,9 @@ export const CvCreator: React.FC = () => {
             const response = await api.createCvFromData(formData, user.id);
 
             if (response.downloadUrl) {
+                // Store download URL for manual download button
+                setDownloadUrl(response.downloadUrl);
+
                 // Create a temporary link to force download
                 const link = document.createElement('a');
                 link.href = response.downloadUrl;
@@ -214,6 +218,18 @@ export const CvCreator: React.FC = () => {
                         {t('cvCreator.cvDownloadedMessage')}
                     </p>
                     <div className="flex flex-col gap-4">
+                        {/* Manual Download Button */}
+                        {downloadUrl && (
+                            <a
+                                href={downloadUrl}
+                                download="CV.pdf"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-full bg-secondary hover:bg-teal-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
+                            >
+                                <Save size={20} /> {t('cvCreator.downloadCv')}
+                            </a>
+                        )}
                         <button
                             onClick={() => navigate('/services/cv-optimizer')}
                             className="w-full bg-primary hover:bg-blue-800 text-white py-4 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
