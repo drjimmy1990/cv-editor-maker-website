@@ -39,7 +39,7 @@ export const en = {
   home: {
     heroTag: "AI-Powered Business Intelligence",
     heroTitle: "Optimize your Business success.",
-    heroSubtitle: "The all-in-one platform for professionals and enterprises. Optimize your CV, analyze competitors, and consult experts using the power of Gemini AI.",
+    heroSubtitle: "The all-in-one platform for professionals and enterprises. Optimize your CV, analyze competitors, and consult experts using the power of AI.",
     aboutTitle: "Bridging the Gap Between Ambition & Strategy",
     aboutText1: "Optimization was founded to democratize access to high-level business intelligence. We combine state-of-the-art Generative AI with expert human consultation to provide a roadmap for success.",
     aboutText2: "Whether you are a professional looking to land your dream job or a company aiming to dominate a new market, our tools are designed to give you a competitive edge instantly.",
