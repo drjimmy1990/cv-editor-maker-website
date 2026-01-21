@@ -367,6 +367,7 @@ export const en = {
     tabContact: "Contact",
     tabComplaints: "Complaints",
     tabCvSessions: "CV Sessions",
+    contentManager: "Content Manager",
     // Dashboard
     totalUsers: "Total Users",
     pendingReq: "Pending Requests",

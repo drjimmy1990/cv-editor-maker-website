@@ -4,10 +4,11 @@ import { api } from '../services/api';
 import {
   Users, MessageSquare, AlertCircle, X, Check, Eye,
   LayoutDashboard, Mail, FileText, Zap, Edit2, Save,
-  ChevronRight, Search, Trash2
+  ChevronRight, Search, Trash2, Globe
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { ContentEditor } from '../components/ContentEditor';
 
 // Types
 interface ConsultationRequest {
@@ -48,7 +49,7 @@ interface CvSession {
   created_at: string;
 }
 
-type TabType = 'dashboard' | 'users' | 'consultations' | 'contact' | 'complaints' | 'cv-sessions';
+type TabType = 'dashboard' | 'users' | 'consultations' | 'contact' | 'complaints' | 'cv-sessions' | 'content';
 
 export const Admin: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
@@ -77,6 +78,7 @@ export const Admin: React.FC = () => {
     { id: 'contact' as TabType, label: t('admin.tabContact'), icon: <Mail size={18} /> },
     { id: 'complaints' as TabType, label: t('admin.tabComplaints'), icon: <AlertCircle size={18} /> },
     { id: 'cv-sessions' as TabType, label: t('admin.tabCvSessions'), icon: <FileText size={18} /> },
+    { id: 'content' as TabType, label: t('admin.contentManager') || "Content Manager", icon: <Globe size={18} /> },
   ];
 
   // Filter complaints from contacts (subject starts with 'COMPLAINT')
@@ -662,6 +664,9 @@ export const Admin: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Content Editor Tab */}
+      {activeTab === 'content' && <ContentEditor />}
 
       {/* Consultation Details Modal */}
       {selectedRequest && (

@@ -368,6 +368,7 @@ export const ar = {
     tabContact: "رسائل التواصل",
     tabComplaints: "الشكاوى",
     tabCvSessions: "جلسات السيرة الذاتية",
+    contentManager: "إدارة المحتوى",
     // Dashboard
     totalUsers: "إجمالي المستخدمين",
     pendingReq: "طلبات قيد الانتظار",
