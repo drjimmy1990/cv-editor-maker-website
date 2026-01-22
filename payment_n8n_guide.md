@@ -390,3 +390,7 @@ Ensure the following keys exist in your `system_config` table for the pricing lo
 *   `credits_basic` (e.g., 10)
 *   `credits_pro` (e.g., 50)
 *   `credits_premium` (e.g., 150)
+*   `credits_business_analyzer` (e.g., 15)
+*   `credits_competitor_analysis` (e.g., 20)
+*   `credits_cv_creator` (e.g., 15)
+*   `credits_cv_optimizer` (e.g., 10)

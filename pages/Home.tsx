@@ -1,13 +1,166 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowRight, BarChart2, Users, MapPin, CheckCircle, Mail, Phone, ChevronRight, ArrowLeft, PenTool, Activity, MessageCircle } from 'lucide-react';
+import { ArrowRight, BarChart2, Users, MapPin, CheckCircle, Mail, Phone, ChevronRight, ArrowLeft, PenTool, Activity, MessageCircle, Info } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { ServiceDetailModal } from '../components/ServiceDetailModal';
+
+interface ServiceInfo {
+  id: string;
+  titleKey: string;
+  descKey: string;
+  howToUseKey: string;
+  credits: number | string;
+  image?: string;
+  route: string;
+  color: string;
+  category: 'individuals' | 'companies' | 'other';
+}
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t, isRTL } = useLanguage();
   const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
+
+  const [selectedService, setSelectedService] = useState<ServiceInfo | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const services: ServiceInfo[] = [
+    {
+      id: 'cv_optimizer',
+      titleKey: 'services.cvOptTitle',
+      descKey: 'services.cvOptDesc',
+      howToUseKey: 'services.cvOptHowTo',
+      credits: 10,
+      route: '/services/cv-optimizer',
+      color: 'from-blue-500 to-indigo-600',
+      category: 'individuals',
+    },
+    {
+      id: 'cv_creator',
+      titleKey: 'services.cvCreatorTitle',
+      descKey: 'services.cvCreatorDesc',
+      howToUseKey: 'services.cvCreatorHowTo',
+      credits: 15,
+      route: '/services/cv-creator',
+      color: 'from-teal-500 to-emerald-600',
+      category: 'individuals',
+    },
+    {
+      id: 'competitor_analysis',
+      titleKey: 'services.compAnalysisTitle',
+      descKey: 'services.compAnalysisDesc',
+      howToUseKey: 'services.compAnalysisHowTo',
+      credits: 20,
+      route: '/services/competitor-analysis',
+      color: 'from-purple-500 to-violet-600',
+      category: 'companies',
+    },
+    {
+      id: 'business_analyzer',
+      titleKey: 'services.singleBusinessTitle',
+      descKey: 'services.singleBusinessDesc',
+      howToUseKey: 'services.businessAnalyzerHowTo',
+      credits: 15,
+      route: '/services/business-analyzer',
+      color: 'from-orange-500 to-amber-600',
+      category: 'companies',
+    },
+    {
+      id: 'consultation',
+      titleKey: 'services.expertConsultTitle',
+      descKey: 'services.expertConsultDesc',
+      howToUseKey: 'services.consultationHowTo',
+      credits: 'contact',
+      route: '/services/consultation',
+      color: 'from-green-500 to-teal-600',
+      category: 'companies',
+    },
+    {
+      id: 'coming_soon',
+      titleKey: 'services.comingSoonTitle',
+      descKey: 'services.comingSoonDesc',
+      howToUseKey: 'services.comingSoonHowTo',
+      credits: 'coming_soon',
+      route: '',
+      color: 'from-gray-400 to-gray-500',
+      category: 'other',
+    },
+  ];
+
+  const individualsServices = services.filter(s => s.category === 'individuals');
+  const companiesServices = services.filter(s => s.category === 'companies' || s.category === 'other');
+
+  const openServiceModal = (service: ServiceInfo) => {
+    setSelectedService(service);
+    setIsModalOpen(true);
+  };
+
+  const icons: Record<string, React.ReactNode> = {
+    cv_optimizer: <PenTool size={28} />,
+    cv_creator: <Users size={28} />,
+    competitor_analysis: <BarChart2 size={28} />,
+    business_analyzer: <Activity size={28} />,
+    consultation: <MessageCircle size={28} />,
+    coming_soon: <CheckCircle size={28} />,
+  };
+  const hoverColors: Record<string, string> = {
+    cv_optimizer: 'group-hover:text-primary',
+    cv_creator: 'group-hover:text-secondary',
+    competitor_analysis: 'group-hover:text-purple-600',
+    business_analyzer: 'group-hover:text-orange-600',
+    consultation: 'group-hover:text-green-600',
+    coming_soon: 'group-hover:text-gray-600',
+  };
+  const textColors: Record<string, string> = {
+    cv_optimizer: 'text-primary',
+    cv_creator: 'text-secondary',
+    competitor_analysis: 'text-purple-600',
+    business_analyzer: 'text-orange-600',
+    consultation: 'text-green-600',
+    coming_soon: 'text-gray-500',
+  };
+
+  const renderServiceCard = (service: ServiceInfo) => {
+    const isComingSoon = service.id === 'coming_soon';
+    return (
+      <div
+        key={service.id}
+        className={`group bg-white rounded-2xl p-6 shadow-md border border-gray-100 transition-all duration-300 ${isComingSoon ? 'opacity-70 cursor-default' : 'hover:shadow-2xl hover:-translate-y-2 cursor-pointer'}`}
+      >
+        <div className={`w-14 h-14 bg-gradient-to-br ${service.color} rounded-xl flex items-center justify-center text-white mb-5 ${isComingSoon ? '' : 'group-hover:scale-110'} transition-transform`}>
+          {icons[service.id]}
+        </div>
+        <h3 className={`text-xl font-bold text-charcoal mb-2 ${hoverColors[service.id]} transition-colors`}>{t(service.titleKey)}</h3>
+        <p className="text-gray-500 text-sm mb-4 leading-relaxed">{t(service.descKey)}</p>
+
+        {isComingSoon ? (
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1 bg-gray-100 text-gray-500 text-xs font-bold px-3 py-1.5 rounded-full border border-gray-200">
+              {t('common.comingSoon')}
+            </span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3 mt-auto">
+            <button
+              onClick={(e) => { e.stopPropagation(); openServiceModal(service); }}
+              className={`flex items-center gap-1 ${textColors[service.id]} font-semibold text-sm hover:underline`}
+            >
+              <Info size={14} />
+              {t('common.viewDetails')}
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); navigate(service.route); }}
+              className={`flex items-center gap-1 bg-gradient-to-r ${service.color} text-white text-xs font-bold px-3 py-1.5 rounded-full hover:shadow-md transition-all`}
+            >
+              {isRTL ? 'استخدم' : 'Use'}
+              <ArrowIcon size={12} />
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   // Handle Hash Scrolling (e.g., /#services) on mount or hash change
   useEffect(() => {
@@ -155,7 +308,7 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Services Summary Section (Categorized) */}
+      {/* Services Summary Section */}
       <section id="services" className="bg-gray-50 py-24 relative overflow-hidden scroll-mt-16">
         <div className="absolute top-0 start-0 w-full h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
         <div className="absolute top-0 start-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-white rounded-full blur-3xl opacity-60 pointer-events-none"></div>
@@ -168,79 +321,46 @@ export const Home: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-stretch">
-
-            {/* Individuals Column */}
-            <div className="flex flex-col h-full bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-              <div className="h-2 w-full bg-secondary"></div>
-              <div className="p-10 flex flex-col h-full">
-                <div className="flex justify-between items-start mb-8">
-                  <div className="p-4 bg-blue-50 rounded-2xl text-primary group-hover:bg-secondary group-hover:text-white transition-colors duration-300">
-                    <Users size={32} />
-                  </div>
-                  <span className="px-4 py-1.5 rounded-full bg-gray-100 text-gray-600 text-xs font-bold uppercase tracking-wider">{t('services.forIndividuals')}</span>
-                </div>
-
-                <h3 className="text-2xl font-bold text-charcoal mb-4">{t('services.indTitle')}</h3>
-                <p className="text-gray-600 mb-8 leading-relaxed">
-                  {t('services.hubSubtitleInd')}
-                </p>
-
-                <div className="mt-auto space-y-3">
-                  <div className="flex items-center gap-3 text-sm text-gray-600">
-                    <CheckCircle size={16} className="text-secondary" /> <span>{t('services.cvOptTitle')}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm text-gray-600">
-                    <PenTool size={16} className="text-secondary" /> <span>{t('services.cvCreatorTitle')}</span>
-                  </div>
-
-                  <button
-                    onClick={() => navigate('/services?category=individuals')}
-                    className="w-full mt-8 py-3 rounded-xl border-2 border-primary/10 text-primary font-bold hover:bg-primary hover:text-white transition-all flex justify-center items-center gap-2"
-                  >
-                    {t('common.viewDetails')} <ArrowIcon size={18} />
-                  </button>
-                </div>
+          {/* For Individuals Section */}
+          <div className="mb-16">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-10 h-10 bg-secondary/10 rounded-xl flex items-center justify-center">
+                <Users size={20} className="text-secondary" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-charcoal">{t('services.forIndividuals')}</h3>
+                <p className="text-sm text-gray-500">{t('services.forIndividualsDesc')}</p>
               </div>
             </div>
+            <div className="grid sm:grid-cols-2 gap-6">
+              {individualsServices.map((service) => renderServiceCard(service))}
+            </div>
+          </div>
 
-            {/* Companies Column */}
-            <div className="flex flex-col h-full bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-              <div className="h-2 w-full bg-primary"></div>
-              <div className="p-10 flex flex-col h-full">
-                <div className="flex justify-between items-start mb-8">
-                  <div className="p-4 bg-blue-50 rounded-2xl text-charcoal group-hover:bg-primary group-hover:text-white transition-colors duration-300">
-                    <BarChart2 size={32} />
-                  </div>
-                  <span className="px-4 py-1.5 rounded-full bg-gray-100 text-gray-600 text-xs font-bold uppercase tracking-wider">{t('services.forCompanies')}</span>
-                </div>
-
-                <h3 className="text-2xl font-bold text-charcoal mb-4">{t('services.compTitle')}</h3>
-                <p className="text-gray-600 mb-8 leading-relaxed">
-                  {t('services.hubSubtitleComp')}
-                </p>
-
-                <div className="mt-auto space-y-3">
-                  <div className="flex items-center gap-3 text-sm text-gray-600">
-                    <CheckCircle size={16} className="text-primary" /> <span>{t('services.compAnalysisTitle')}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm text-gray-600">
-                    <Activity size={16} className="text-primary" /> <span>{t('services.singleBusinessTitle')}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm text-gray-600">
-                    <MessageCircle size={16} className="text-primary" /> <span>{t('services.expertConsultTitle')}</span>
-                  </div>
-
-                  <button
-                    onClick={() => navigate('/services?category=companies')}
-                    className="w-full mt-8 py-3 rounded-xl border-2 border-primary/10 text-primary font-bold hover:bg-primary hover:text-white transition-all flex justify-center items-center gap-2"
-                  >
-                    {t('common.viewDetails')} <ArrowIcon size={18} />
-                  </button>
-                </div>
+          {/* For Companies Section */}
+          <div>
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                <BarChart2 size={20} className="text-primary" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-charcoal">{t('services.forCompanies')}</h3>
+                <p className="text-sm text-gray-500">{t('services.forCompaniesDesc')}</p>
               </div>
             </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {companiesServices.map((service) => renderServiceCard(service))}
+            </div>
+          </div>
 
+          {/* View All Services Button */}
+          <div className="text-center mt-12">
+            <button
+              onClick={() => navigate('/services')}
+              className="inline-flex items-center gap-2 bg-primary hover:bg-blue-800 text-white font-bold py-4 px-10 rounded-full shadow-lg hover:shadow-xl transform transition-all hover:-translate-y-1"
+            >
+              {t('common.viewAllServices')} <ArrowIcon size={20} />
+            </button>
           </div>
         </div>
       </section>
@@ -259,6 +379,13 @@ export const Home: React.FC = () => {
           </button>
         </div>
       </section>
+
+      {/* Service Detail Modal */}
+      <ServiceDetailModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        service={selectedService}
+      />
     </div>
   );
 };
