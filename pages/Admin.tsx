@@ -119,7 +119,7 @@ export const Admin: React.FC = () => {
           subject: item.subject,
           message: item.message,
           status: item.status,
-          email: item.profiles?.email || 'Unknown',
+          email: item.email || item.profiles?.email || 'Anonymous',
           is_paid: item.is_paid || false,
         }));
         setRequests(mapped);

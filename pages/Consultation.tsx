@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { CheckCircle, Briefcase, Loader, ChevronRight, Building2, TrendingUp, Settings, Users, BarChart3, ArrowRight, ArrowLeft } from 'lucide-react';
@@ -10,6 +10,7 @@ export const Consultation: React.FC = () => {
   const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
 
   const [formData, setFormData] = useState({
+    email: '',
     entityName: '',
     contactPerson: '',
     mobileNumber: '',
@@ -21,20 +22,19 @@ export const Consultation: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   // Auto-fill email if user is logged in
-  const userEmail = user?.email || '';
+  useEffect(() => {
+    if (user?.email) {
+      setFormData(prev => ({ ...prev, email: user.email! }));
+    }
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) {
-      alert("You must be logged in to request a consultation.");
-      return;
-    }
 
     setLoading(true);
     try {
       await api.requestConsultation({
-        userId: user.id,
-        email: userEmail,
+        userId: user?.id || null, // Allow null for anonymous
         ...formData
       });
       setSubmitted(true);
@@ -79,14 +79,21 @@ export const Consultation: React.FC = () => {
           <button
             onClick={() => {
               setSubmitted(false);
-              setFormData({ entityName: '', contactPerson: '', mobileNumber: '', projectOverview: '', supportNeeds: '' });
+              setFormData({
+                email: user?.email || '',
+                entityName: '',
+                contactPerson: '',
+                mobileNumber: '',
+                projectOverview: '',
+                supportNeeds: ''
+              });
             }}
             className="bg-primary text-white font-bold py-3 px-8 rounded-xl hover:bg-blue-800 transition-colors shadow-md"
           >
             {t('consultation.submitAnother')}
           </button>
         </div>
-      </div>
+      </div >
     );
   }
 
@@ -217,9 +224,12 @@ export const Consultation: React.FC = () => {
                     <label className="text-sm font-bold text-charcoal uppercase tracking-wide">{t('common.email')}</label>
                     <input
                       type="email"
-                      disabled
-                      className="w-full bg-gray-100 border border-gray-200 text-gray-500 rounded-xl px-5 py-4 cursor-not-allowed font-medium"
-                      value={userEmail || 'Please Login First'}
+                      required
+                      disabled={!!user} // Only disable if logged in
+                      placeholder={t('consultation.emailPlaceholder') || "Enter your email"}
+                      className={`w-full border border-gray-200 rounded-xl px-5 py-4 font-medium transition-all ${user ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'bg-gray-50 focus:ring-2 focus:ring-primary focus:border-transparent'}`}
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     />
                   </div>
                   <div className="space-y-2">
@@ -261,7 +271,7 @@ export const Consultation: React.FC = () => {
 
                 <button
                   type="submit"
-                  disabled={loading || !user}
+                  disabled={loading}
                   className="w-full bg-accent hover:bg-yellow-600 text-white font-bold py-5 rounded-xl shadow-lg hover:shadow-xl transform transition-all hover:-translate-y-1 flex justify-center items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed text-lg"
                 >
                   {loading ? <Loader className="animate-spin" /> : <>{t('consultation.submitRequest')} <ArrowIcon size={22} /></>}

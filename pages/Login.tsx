@@ -10,7 +10,9 @@ export const Login: React.FC = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /* Removed duplicate state declarations */
   const [verificationSent, setVerificationSent] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false); // New state
 
   const [formData, setFormData] = useState({
     email: '',
@@ -64,6 +66,26 @@ export const Login: React.FC = () => {
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setVerificationSent(false);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
+        redirectTo: window.location.origin,
+      });
+      if (error) throw error;
+
+      setVerificationSent(true); // Reuse verification UI for simplicity
+    } catch (err: any) {
+      setError(err.message || 'Failed to send reset email');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // If verification email was just sent, show this specific view
   if (verificationSent) {
     return (
@@ -74,8 +96,8 @@ export const Login: React.FC = () => {
           </div>
           <h2 className="text-2xl font-bold text-charcoal mb-4">Check your Inbox</h2>
           <p className="text-gray-600 mb-6 leading-relaxed">
-            We have sent a verification link to <strong>{formData.email}</strong>.
-            Please click the link to activate your account.
+            We have sent a {isForgotPassword ? "password reset" : "verification"} link to <strong>{formData.email}</strong>.
+            Please click the link to {isForgotPassword ? "reset your password" : "activate your account"}.
           </p>
           <button
             onClick={() => { setVerificationSent(false); setIsSignUp(false); }}
@@ -93,10 +115,10 @@ export const Login: React.FC = () => {
       <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full border border-gray-100">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-primary mb-2">
-            {isSignUp ? t('auth.signUp') : t('auth.loginTitle')}
+            {isForgotPassword ? "Reset Password" : (isSignUp ? t('auth.signUp') : t('auth.loginTitle'))}
           </h2>
           <p className="text-gray-500">
-            {isSignUp ? "Create your account to get started" : t('auth.loginSubtitle')}
+            {isForgotPassword ? "Enter your email to receive a reset link" : (isSignUp ? "Create your account to get started" : t('auth.loginSubtitle'))}
           </p>
         </div>
 
@@ -107,7 +129,7 @@ export const Login: React.FC = () => {
           </div>
         )}
 
-        <form onSubmit={handleAuth} className="space-y-4">
+        <form onSubmit={isForgotPassword ? handleForgotPassword : handleAuth} className="space-y-4">
           {isSignUp && (
             <div>
               <label className="block text-sm font-medium text-charcoal mb-1">Full Name</label>
@@ -138,38 +160,62 @@ export const Login: React.FC = () => {
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-charcoal mb-1">{t('common.password')}</label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 text-gray-400" size={18} />
-              <input
-                type="password"
-                required
-                minLength={6}
-                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              />
+          {!isForgotPassword && (
+            <div>
+              <label className="block text-sm font-medium text-charcoal mb-1">{t('common.password')}</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 text-gray-400" size={18} />
+                <input
+                  type="password"
+                  required
+                  minLength={6}
+                  className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                />
+              </div>
+              {!isSignUp && (
+                <div className="flex justify-end mt-1">
+                  <button
+                    type="button"
+                    onClick={() => setIsForgotPassword(true)}
+                    className="text-xs text-primary hover:underline font-medium"
+                  >
+                    Forgot Password?
+                  </button>
+                </div>
+              )}
             </div>
-          </div>
+          )}
 
           <button
             type="submit"
             disabled={loading}
             className="w-full bg-primary hover:bg-blue-800 text-white font-bold py-3 rounded-xl transition-all shadow-md flex justify-center items-center gap-2"
           >
-            {loading ? <Loader className="animate-spin" size={20} /> : (isSignUp ? t('auth.signUp') : t('common.signIn'))}
+            {loading ? <Loader className="animate-spin" size={20} /> : (isForgotPassword ? "Send Reset Link" : (isSignUp ? t('auth.signUp') : t('common.signIn')))}
           </button>
         </form>
 
         <div className="mt-6 text-center text-sm text-gray-500">
-          {isSignUp ? "Already have an account? " : t('auth.noAccount') + " "}
-          <button
-            onClick={() => setIsSignUp(!isSignUp)}
-            className="text-secondary font-bold hover:underline"
-          >
-            {isSignUp ? t('common.signIn') : t('auth.signUp')}
-          </button>
+          {isForgotPassword ? (
+            <button
+              onClick={() => setIsForgotPassword(false)}
+              className="text-primary font-bold hover:underline"
+            >
+              Back to Sign In
+            </button>
+          ) : (
+            <>
+              {isSignUp ? "Already have an account? " : t('auth.noAccount') + " "}
+              <button
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-secondary font-bold hover:underline"
+              >
+                {isSignUp ? t('common.signIn') : t('auth.signUp')}
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

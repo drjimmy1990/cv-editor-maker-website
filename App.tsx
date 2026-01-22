@@ -18,6 +18,7 @@ const CompetitorAnalysis = React.lazy(() => import('./pages/CompetitorAnalysis')
 const Consultation = React.lazy(() => import('./pages/Consultation').then(module => ({ default: module.Consultation })));
 const Admin = React.lazy(() => import('./pages/Admin').then(module => ({ default: module.Admin })));
 const Login = React.lazy(() => import('./pages/Login').then(module => ({ default: module.Login })));
+const ResetPassword = React.lazy(() => import('./pages/ResetPassword').then(module => ({ default: module.ResetPassword })));
 const Pricing = React.lazy(() => import('./pages/Pricing').then(module => ({ default: module.Pricing })));
 
 // For Default Exports (export default ComponentName)
@@ -46,6 +47,7 @@ const App: React.FC = () => {
                 {/* Public Routes */}
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/complaints" element={<Complaints />} />

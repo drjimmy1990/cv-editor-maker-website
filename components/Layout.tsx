@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { supabase } from '../services/supabaseClient';
 import {
   Menu, X, Globe, User, LogOut, LayoutDashboard,
   Briefcase, MessageSquare, Home as HomeIcon, Info, CreditCard, Zap
@@ -26,6 +27,22 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       window.scrollTo(0, 0);
     }
   }, [location.pathname]);
+
+  // Auth Listener for Password Recovery Redirect
+  useEffect(() => {
+    // Only set up listener if we are not already on the reset page
+    if (location.pathname === '/reset-password') return;
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        navigate('/reset-password');
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate, location.pathname]);
 
   const handleLogout = async () => {
     await signOut();

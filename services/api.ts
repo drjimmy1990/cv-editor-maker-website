@@ -26,7 +26,7 @@ interface ContactPayload {
 }
 
 interface ConsultationPayload {
-    userId: string;
+    userId?: string | null;
     email: string;
     entityName: string;
     contactPerson: string;
@@ -41,7 +41,6 @@ interface ComplaintPayload {
     phone?: string;
     complaint: string;
 }
-
 
 export const api = {
     /**
@@ -71,14 +70,14 @@ export const api = {
     /**
      * Sends a consultation request to n8n
      */
-    requestConsultation: async (data: ConsultationPayload, profileId: string) => {
+    requestConsultation: async (data: ConsultationPayload) => {
         try {
             const response = await fetch(`${N8N_BASE_URL}/${WEBHOOKS.CONSULTATION}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ ...data, profile_id: profileId }),
+                body: JSON.stringify(data),
             });
 
             if (!response.ok) {
