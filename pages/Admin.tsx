@@ -4,11 +4,13 @@ import { api } from '../services/api';
 import {
   Users, MessageSquare, AlertCircle, X, Check, Eye,
   LayoutDashboard, Mail, FileText, Zap, Edit2, Save,
-  ChevronRight, Search, Trash2, Globe
+  ChevronRight, Search, Trash2, Globe, Settings, Tag
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { ContentEditor } from '../components/ContentEditor';
+import { SystemConfigManager } from '../components/SystemConfigManager';
+import { PromoManager } from '../components/PromoManager';
 
 // Types
 interface ConsultationRequest {
@@ -49,7 +51,7 @@ interface CvSession {
   created_at: string;
 }
 
-type TabType = 'dashboard' | 'users' | 'consultations' | 'contact' | 'complaints' | 'cv-sessions' | 'content';
+type TabType = 'dashboard' | 'users' | 'consultations' | 'contact' | 'complaints' | 'cv-sessions' | 'content' | 'config' | 'promos';
 
 export const Admin: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
@@ -79,6 +81,8 @@ export const Admin: React.FC = () => {
     { id: 'complaints' as TabType, label: t('admin.tabComplaints'), icon: <AlertCircle size={18} /> },
     { id: 'cv-sessions' as TabType, label: t('admin.tabCvSessions'), icon: <FileText size={18} /> },
     { id: 'content' as TabType, label: t('admin.contentManager') || "Content Manager", icon: <Globe size={18} /> },
+    { id: 'config' as TabType, label: t('admin.systemConfig') || "Config", icon: <Settings size={18} /> },
+    { id: 'promos' as TabType, label: t('admin.promoCodes') || "Promos", icon: <Tag size={18} /> },
   ];
 
   // Filter complaints from contacts (subject starts with 'COMPLAINT')
@@ -667,6 +671,12 @@ export const Admin: React.FC = () => {
 
       {/* Content Editor Tab */}
       {activeTab === 'content' && <ContentEditor />}
+
+      {/* System Config Tab */}
+      {activeTab === 'config' && <SystemConfigManager />}
+
+      {/* Promo Codes Tab */}
+      {activeTab === 'promos' && <PromoManager />}
 
       {/* Consultation Details Modal */}
       {selectedRequest && (

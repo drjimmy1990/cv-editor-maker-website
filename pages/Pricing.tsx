@@ -1,11 +1,69 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../services/supabaseClient';
 import { Check, Zap, Crown, Star } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 
+import { useNavigate } from 'react-router-dom';
+import { CheckoutModal } from '../components/CheckoutModal';
+
 export const Pricing: React.FC = () => {
   const { t, isRTL } = useLanguage();
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState<{ id: string, name: string, price: number } | null>(null);
+  const [prices, setPrices] = useState<Record<string, number>>({
+    basic: 49,
+    pro: 99,
+    premium: 199
+  });
+
+  useEffect(() => {
+    fetchPrices();
+  }, []);
+
+  const fetchPrices = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('system_config')
+        .select('key, value')
+        .in('key', ['price_basic', 'price_pro', 'price_premium']);
+
+      if (error) throw error;
+
+      if (data) {
+        const newPrices: Record<string, number> = { ...prices };
+        data.forEach(item => {
+          // keys are like 'price_basic', we want 'basic'
+          const tier = item.key.replace('price_', '');
+          if (newPrices[tier] !== undefined) {
+            newPrices[tier] = Number(item.value);
+          }
+        });
+        setPrices(newPrices);
+      }
+    } catch (err) {
+      console.error("Error fetching prices:", err);
+    }
+  };
+
+  const handlePurchase = (tierKey: string) => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    const pkgName = t(`pricing.${tierKey}.name`);
+
+    setSelectedPackage({
+      id: tierKey,
+      name: typeof pkgName === 'string' ? pkgName : tierKey,
+      price: prices[tierKey] || 0
+    });
+    setIsCheckoutOpen(true);
+  };
 
   const tiers = [
     {
@@ -57,7 +115,6 @@ export const Pricing: React.FC = () => {
         <div className="grid md:grid-cols-3 gap-8 items-stretch pt-8">
           {tiers.map((tier) => {
             const features = t(`pricing.${tier.key}.features`);
-            const price = t(`pricing.${tier.key}.price`);
             const credits = t(`pricing.${tier.key}.credits`);
 
             return (
@@ -82,7 +139,7 @@ export const Pricing: React.FC = () => {
                   {/* Price */}
                   <div className="text-center mb-6">
                     <div className="flex items-baseline justify-center gap-1">
-                      <span className="text-4xl font-extrabold text-charcoal">{price}</span>
+                      <span className="text-4xl font-extrabold text-charcoal">{prices[tier.key]}</span>
                       <span className="text-gray-500">{t('pricing.currency')}</span>
                     </div>
                     <div className="mt-2 inline-flex items-center gap-2 bg-blue-50 text-primary px-4 py-2 rounded-full">
@@ -106,7 +163,10 @@ export const Pricing: React.FC = () => {
                     )}
                   </ul>
 
-                  <button className={`w-full py-3 px-6 rounded-xl font-bold transition-all transform hover:scale-105 ${tier.btnColor}`}>
+                  <button
+                    onClick={() => handlePurchase(tier.key)}
+                    className={`w-full py-3 px-6 rounded-xl font-bold transition-all transform hover:scale-105 ${tier.btnColor}`}
+                  >
                     {t(`pricing.${tier.key}.btn`)}
                   </button>
                 </div>
@@ -115,6 +175,18 @@ export const Pricing: React.FC = () => {
           })}
         </div>
       </div>
+
+      {selectedPackage && user && (
+        <CheckoutModal
+          isOpen={isCheckoutOpen}
+          onClose={() => setIsCheckoutOpen(false)}
+          userId={user.id}
+          packageId={selectedPackage.id}
+          packageName={selectedPackage.name}
+          originalPrice={selectedPackage.price}
+          currency={t('pricing.currency')}
+        />
+      )}
     </div>
   );
 };

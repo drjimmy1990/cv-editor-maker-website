@@ -1,4 +1,5 @@
 import { ComparisonResult, CvOptimizeResult, CvFinalizeResult, BusinessAnalysisResult } from '../types';
+import { supabase } from './supabaseClient';
 
 // ✅ Webhook Configuration - Uses environment variables with fallbacks
 const N8N_BASE_URL = import.meta.env.VITE_N8N_WEBHOOK_URL || 'https://n8n.ai4eg.com/webhook';
@@ -15,6 +16,7 @@ const WEBHOOKS = {
     BUSINESS_ANALYZER: import.meta.env.VITE_WEBHOOK_BUSINESS_ANALYZER || 'business-analyzer',
     SUBMIT_COMPLAINT: import.meta.env.VITE_WEBHOOK_SUBMIT_COMPLAINT || 'submit-complaint',
     SEND_EMAIL_REPLY: import.meta.env.VITE_WEBHOOK_SEND_EMAIL_REPLY || 'send-email-reply',
+    INITIATE_PAYMENT: import.meta.env.VITE_WEBHOOK_INITIATE_PAYMENT || 'initiate-payment',
 };
 
 interface ContactPayload {
@@ -39,6 +41,7 @@ interface ComplaintPayload {
     phone?: string;
     complaint: string;
 }
+
 
 export const api = {
     /**
@@ -271,6 +274,52 @@ export const api = {
             return await response.json();
         } catch (error) {
             console.error("Email Reply Error:", error);
+            throw error;
+        }
+    },
+
+    /**
+     * Initiates a payment process via n8n
+     */
+    initiatePayment: async (data: { userId: string; amount: number; type: string; promoCodeId?: string; packageId?: string }) => {
+        try {
+            const response = await fetch(`${N8N_BASE_URL}/${WEBHOOKS.INITIATE_PAYMENT}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (!response.ok) {
+                throw new Error(`n8n Error: ${response.statusText}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error("Payment Initiation Error:", error);
+            throw error;
+        }
+    },
+
+    /**
+     * Validates a promo code via Supabase RPC
+     */
+    validatePromoCode: async (code: string, userId: string, originalAmount: number) => {
+        try {
+            const { data, error } = await supabase
+                .rpc('validate_promo_code', {
+                    code_input: code,
+                    cart_amount: originalAmount
+                });
+
+            if (error) {
+                throw new Error(error.message);
+            }
+
+            return data;
+        } catch (error) {
+            console.error("Promo Code Validation Error:", error);
             throw error;
         }
     }
