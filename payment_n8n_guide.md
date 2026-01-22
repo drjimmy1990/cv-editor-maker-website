@@ -466,9 +466,8 @@ Use this pattern at the START of any service workflow (CV Optimizer, Business An
 {
   "success": false,
   "error": "INSUFFICIENT_CREDITS",
-  "currentCredits": {{ $node["Get User Credits"].json.credits_cv }},
-  "requiredCredits": {{ Number($node["Get Required Credits"].json.value) }},
-  "message": "You don't have enough credits for this service"
+  "currentCredits": 3,
+  "requiredCredits": 10
 }
 ```
 
