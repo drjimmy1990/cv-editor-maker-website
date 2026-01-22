@@ -20,6 +20,19 @@ Before setting up n8n, you must configure your EdfaPay Merchant Dashboard:
 
 ---
 
+## Prerequisites: Supabase Auth URL Configuration
+
+Configure these settings in **Supabase Dashboard** → **Authentication** → **URL Configuration**:
+
+| Setting | Value |
+|---------|-------|
+| **Site URL** | `https://optimization.sa` |
+| **Redirect URLs** | `https://optimization.sa/reset-password` |
+
+> ⚠️ **Important:** Without this, password reset emails will redirect to localhost instead of your production domain.
+
+---
+
 ## Workflow 1: Initiate Payment (`initiate-payment`)
 
 **Trigger:** Webhook (POST) `/webhook/initiate-payment`
