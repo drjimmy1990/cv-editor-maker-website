@@ -206,11 +206,25 @@ export const ContentEditor: React.FC = () => {
     // Get unique sections
     const sections = Array.from(new Set(staticKeys.map(k => k.split('.')[0]))).sort();
 
-    // Filter keys
+    // Filter keys by key name OR value content
     const filteredKeys = staticKeys.filter(key => {
         const matchesSection = activeSection === 'all' || key.startsWith(activeSection + '.');
-        const matchesSearch = key.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesSection && matchesSearch;
+        const query = searchQuery.toLowerCase();
+
+        // Search in key name
+        const matchesKey = key.toLowerCase().includes(query);
+
+        // Search in DB values (EN and AR)
+        const dbEnValue = dbContent[key]?.en?.toLowerCase() || '';
+        const dbArValue = dbContent[key]?.ar?.toLowerCase() || '';
+        const matchesDbValue = dbEnValue.includes(query) || dbArValue.includes(query);
+
+        // Search in static values (EN and AR) 
+        const staticEnValue = staticContent[key]?.en?.toLowerCase() || '';
+        const staticArValue = staticContent[key]?.ar?.toLowerCase() || '';
+        const matchesStaticValue = staticEnValue.includes(query) || staticArValue.includes(query);
+
+        return matchesSection && (matchesKey || matchesDbValue || matchesStaticValue);
     });
 
     return (

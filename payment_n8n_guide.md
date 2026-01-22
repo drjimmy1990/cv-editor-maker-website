@@ -394,3 +394,110 @@ Ensure the following keys exist in your `system_config` table for the pricing lo
 *   `credits_competitor_analysis` (e.g., 20)
 *   `credits_cv_creator` (e.g., 15)
 *   `credits_cv_optimizer` (e.g., 10)
+
+---
+
+## Credits Check Pattern (For Service Workflows)
+
+Use this pattern at the START of any service workflow (CV Optimizer, Business Analyzer, etc.) to check if the user has enough credits before proceeding.
+
+### Flow Diagram
+
+```
+[Webhook Trigger] 
+       ↓
+[Supabase: Get User Credits] 
+       ↓
+[Supabase: Get Required Credits from system_config]
+       ↓
+[IF: user.credits_cv >= required?]
+       ↓
+   ┌───┴───┐
+   ↓       ↓
+ [YES]   [NO]
+   ↓       ↓
+[Continue] [Respond: INSUFFICIENT_CREDITS]
+```
+
+### Node-by-Node Setup
+
+#### 1. Webhook Trigger
+- **Method:** POST
+- **Path:** `/webhook/cv-optimizer` (or your service endpoint)
+- **Response Mode:** "Respond to Webhook"
+
+**Expected Payload:**
+```json
+{
+  "userId": "uuid-string",
+  "file": "...",
+  "...other service params"
+}
+```
+
+#### 2. Supabase Node: Get User Credits
+- **Operation:** Select
+- **Table:** `users` (or `profiles`)
+- **Filters:** 
+  - `id` equals `{{ $json.userId }}`
+- **Return Fields:** `credits_cv`
+
+#### 3. Supabase Node: Get Required Credits
+- **Operation:** Select
+- **Table:** `system_config`
+- **Filters:**
+  - `key` equals `credits_cv_optimizer` (change per service)
+- **Return Fields:** `value`
+
+#### 4. IF Node: Check Sufficient Credits
+- **Condition:**
+  - Value 1: `{{ $node["Get User Credits"].json.credits_cv }}`
+  - Operation: `Number` → `Larger or Equal`
+  - Value 2: `{{ Number($node["Get Required Credits"].json.value) }}`
+
+#### 5a. YES Branch → Continue with Service
+- Connect to your actual service logic nodes
+- At the end, deduct credits and respond with success
+
+#### 5b. NO Branch → Respond to Webhook (Error)
+- **Node Type:** Respond to Webhook
+- **Response Body:**
+```json
+{
+  "success": false,
+  "error": "INSUFFICIENT_CREDITS",
+  "currentCredits": {{ $node["Get User Credits"].json.credits_cv }},
+  "requiredCredits": {{ Number($node["Get Required Credits"].json.value) }},
+  "message": "You don't have enough credits for this service"
+}
+```
+
+### Frontend Handling
+
+When your API receives the response, check for the error:
+
+```typescript
+const response = await api.callService(params);
+
+if (response.error === 'INSUFFICIENT_CREDITS') {
+  // Show InsufficientCreditsModal
+  setShowCreditsModal(true);
+  setCreditsInfo({
+    current: response.currentCredits,
+    required: response.requiredCredits
+  });
+  return;
+}
+
+// Continue with success handling...
+```
+
+### Service Credit Costs Reference
+
+| Service | Config Key | Default Cost |
+|---------|------------|--------------|
+| CV Optimizer | `credits_cv_optimizer` | 10 |
+| CV Creator | `credits_cv_creator` | 15 |
+| Competitor Analysis | `credits_competitor_analysis` | 20 |
+| Business Analyzer | `credits_business_analyzer` | 15 |
+
