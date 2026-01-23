@@ -352,7 +352,8 @@ Configure these settings in **Supabase Dashboard** → **Authentication** → **
         *   `payer_city`: `Riyadh` (Required)
         *   `payer_zip`: `12345` (Required)
         *   `payer_ip`: `{{ $json.userIp }}` (optional)
-        *   `term_url_3ds`: `https://your-site.com/payment/callback` (Redirect URL)
+        *   `payer_ip`: `{{ $json.userIp }}` (optional)
+        *   `term_url_3ds`: `https://optimization.sa/#/payment/callback` (CRITICAL: Must include `/#/` for your React App)
 
 5.  **Return Redirect URL**
     *   **Action:** Respond to Webhook.
@@ -360,9 +361,34 @@ Configure these settings in **Supabase Dashboard** → **Authentication** → **
 
 ---
 
+## Frontend Setup: Payment Callback Page
+
+A frontend page `PaymentCallback.tsx` has been created to handle the redirect from EdfaPay.
+
+**File:** `src/pages/PaymentCallback.tsx`
+**Route:** `/payment/callback`
+
+**How it works:**
+1.  **User Redirected:** EdfaPay sends user to `https://optimization.sa/#/payment/callback?paymentId=...`
+2.  **Extract Params:** The page gets `paymentId` from the URL.
+3.  **Verify Status:** It calls your n8n webhook `GET /webhook/payment-callback?paymentId=...`
+4.  **Show UI:** Displays Success (Green) or Failure (Red) message to the user.
+
+**Action Required:**
+Ensure your n8n workflow has a **Webhook (GET)** node at path `payment-callback` that verifies the payment status with EdfaPay API and returns JSON:
+```json
+{
+  "success": true,
+  "status": "paid",
+  "message": "Payment successful"
+}
+```
+
+---
+
 ## Workflow 2: Payment Callback (`payment-callback`)
 
-**Trigger:** Webhook (POST) `/webhook/payment-callback` (Called by EdfaPay)
+**Trigger:** Webhook (GET) `/webhook/payment-callback` (Called by EdfaPay)
 
 ### Steps logic:
 

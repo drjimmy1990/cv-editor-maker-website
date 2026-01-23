@@ -20,6 +20,7 @@ const Admin = React.lazy(() => import('./pages/Admin').then(module => ({ default
 const Login = React.lazy(() => import('./pages/Login').then(module => ({ default: module.Login })));
 const ResetPassword = React.lazy(() => import('./pages/ResetPassword').then(module => ({ default: module.ResetPassword })));
 const Pricing = React.lazy(() => import('./pages/Pricing').then(module => ({ default: module.Pricing })));
+const PaymentCallback = React.lazy(() => import('./pages/PaymentCallback').then(module => ({ default: module.PaymentCallback })));
 
 // For Default Exports (export default ComponentName)
 const Contact = React.lazy(() => import('./pages/Contact'));
@@ -46,9 +47,11 @@ const App: React.FC = () => {
               <Routes>
                 {/* Public Routes */}
                 <Route path="/" element={<Home />} />
+                <Route path="/services/consultation" element={<Consultation />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/pricing" element={<Pricing />} />
+                <Route path="/payment/callback" element={<PaymentCallback />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/complaints" element={<Complaints />} />
                 <Route path="/refund-policy" element={<RefundPolicy />} />
@@ -59,7 +62,6 @@ const App: React.FC = () => {
                 <Route path="/services/cv-creator" element={<ProtectedRoute><CvCreator /></ProtectedRoute>} />
                 <Route path="/services/business-analyzer" element={<ProtectedRoute><BusinessAnalyzer /></ProtectedRoute>} />
                 <Route path="/services/competitor-analysis" element={<ProtectedRoute><CompetitorAnalysis /></ProtectedRoute>} />
-                <Route path="/services/consultation" element={<ProtectedRoute><Consultation /></ProtectedRoute>} />
                 <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
               </Routes>
             </Suspense>
