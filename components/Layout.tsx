@@ -265,7 +265,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <h4 className="text-white font-bold mb-4">{t('nav.contact')}</h4>
             <ul className="space-y-2 text-sm">
               <li><bdi>support@optimization.sa</bdi></li>
-              <li><bdi>+966 54 480 0072</bdi></li>
+              <li><bdi>{t('common.phoneNumber')}</bdi></li>
               <li>{t('footer.workingHours')}</li>
               <li>{t('footer.location')}</li>
             </ul>

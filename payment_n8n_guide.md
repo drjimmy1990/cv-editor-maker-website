@@ -376,11 +376,23 @@ A frontend page `PaymentCallback.tsx` has been created to handle the redirect fr
 
 **Action Required:**
 Ensure your n8n workflow has a **Webhook (GET)** node at path `payment-callback` that verifies the payment status with EdfaPay API and returns JSON:
+### Expected Response Formats (From n8n to Frontend)
+
+**Success Response:**
 ```json
 {
   "success": true,
-  "status": "paid",
-  "message": "Payment successful"
+  "status": "completed",
+  "message": "Payment successful! Credits added."
+}
+```
+
+**Failure Response:**
+```json
+{
+  "success": false,
+  "status": "failed",
+  "message": "Payment failed or declined."
 }
 ```
 
@@ -400,7 +412,7 @@ Ensure your n8n workflow has a **Webhook (GET)** node at path `payment-callback`
 
 3.  **Update Transaction Status**
     *   **Action:** Update Supabase `transactions` table.
-    *   **Query:** `UPDATE transactions SET status = 'paid', edfapay_transaction_id = ... WHERE id = ...`
+    *   **Query:** `UPDATE transactions SET status = 'completed', edfapay_transaction_id = ... WHERE id = ...`
 
 4.  **Allocate Credits (If paid)**
     *   **Action:** Call Supabase RPC or Update `profiles` table.

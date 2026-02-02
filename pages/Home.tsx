@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowRight, BarChart2, Users, MapPin, CheckCircle, Mail, Phone, ChevronRight, ArrowLeft, PenTool, Activity, MessageCircle, Info } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { ServiceDetailModal } from '../components/ServiceDetailModal';
+import { useSystemConfig } from '../hooks/useSystemConfig';
 
 interface ServiceInfo {
   id: string;
@@ -24,6 +25,12 @@ export const Home: React.FC = () => {
 
   const [selectedService, setSelectedService] = useState<ServiceInfo | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Fetch About section image from system_config (editable from admin panel)
+  const { value: aboutImageUrl } = useSystemConfig(
+    'about_image_url',
+    'https://images.unsplash.com/photo-1586724237569-f3d0c1dee8c6?q=80&w=2070&auto=format&fit=crop'
+  );
 
   const services: ServiceInfo[] = [
     {
@@ -265,7 +272,7 @@ export const Home: React.FC = () => {
                 {/* Map Image Placeholder */}
                 <div className="h-72 relative bg-slate-200">
                   <img
-                    src="https://images.unsplash.com/photo-1586724237569-f3d0c1dee8c6?q=80&w=2070&auto=format&fit=crop"
+                    src={aboutImageUrl}
                     alt="Riyadh Skyline"
                     className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity duration-700"
                   />
@@ -296,7 +303,7 @@ export const Home: React.FC = () => {
                       </div>
                       <div>
                         <p className="text-xs text-gray-500 uppercase font-semibold">{t('contact.callUs')}</p>
-                        <p className="font-medium text-charcoal" dir="ltr">+966 54 480 0072</p>
+                        <p className="font-medium text-charcoal" dir="ltr">{t('common.phoneNumber')}</p>
                       </div>
                     </div>
                     <ChevronRight size={16} className={`text-gray-400 group-hover:text-primary ${isRTL ? 'rotate-180' : ''}`} />

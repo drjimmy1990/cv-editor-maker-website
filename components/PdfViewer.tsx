@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Loader, ExternalLink, Maximize2 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
@@ -13,6 +14,7 @@ interface PdfViewerProps {
 }
 
 export const PdfViewer: React.FC<PdfViewerProps> = ({ pdfUrl, className = '' }) => {
+    const { t } = useLanguage();
     const [numPages, setNumPages] = useState<number>(0);
     const [pageNumber, setPageNumber] = useState<number>(1);
     const [scale, setScale] = useState<number>(1.0);
@@ -45,13 +47,13 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ pdfUrl, className = '' }) 
             <div className={`flex flex-col h-full ${className}`}>
                 {/* Control bar with Open in New Tab button */}
                 <div className="flex items-center justify-between px-3 py-2 bg-gray-800 text-white shrink-0">
-                    <span className="text-sm text-gray-300">PDF Preview</span>
+                    <span className="text-sm text-gray-300">{t('cv.pdfPreview')}</span>
                     <button
                         onClick={openInNewTab}
                         className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-teal-600 text-white text-sm font-bold rounded-lg transition-colors"
                     >
                         <Maximize2 size={16} />
-                        Open Full Screen (Best for iPad)
+                        {t('cv.openFullScreen')}
                     </button>
                 </div>
                 {/* Iframe fallback */}
@@ -117,7 +119,7 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ pdfUrl, className = '' }) 
                     title="Open in new tab"
                 >
                     <ExternalLink size={16} />
-                    <span className="hidden sm:inline">Full Screen</span>
+                    <span className="hidden sm:inline">{t('cv.fullScreen')}</span>
                 </button>
             </div>
 
@@ -133,7 +135,7 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ pdfUrl, className = '' }) 
                     <div className="absolute inset-0 flex items-center justify-center bg-gray-200 z-10">
                         <div className="text-center">
                             <Loader size={32} className="animate-spin text-primary mx-auto mb-2" />
-                            <p className="text-gray-500 text-sm">Loading PDF...</p>
+                            <p className="text-gray-500 text-sm">{t('cv.loadingPdf')}</p>
                         </div>
                     </div>
                 )}

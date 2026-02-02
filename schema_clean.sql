@@ -658,3 +658,20 @@ SET
 SELECT key, value, group_name, description
 FROM system_config
 ORDER BY group_name, key;
+
+INSERT INTO
+    system_config (
+        key,
+        value,
+        description,
+        group_name,
+        is_secret
+    )
+VALUES (
+        'about_image_url',
+        'https://images.unsplash.com/photo-1586724237569-f3d0c1dee8c6?q=80&w=2070&auto=format&fit=crop',
+        'Image URL for About Us (من نحن) section on homepage',
+        'content',
+        false
+    )
+ON CONFLICT (key) DO NOTHING;

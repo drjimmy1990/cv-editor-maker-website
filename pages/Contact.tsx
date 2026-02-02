@@ -112,7 +112,7 @@ const Contact: React.FC = () => {
                 <div className="bg-white/20 p-2 rounded-lg"><Phone size={24} /></div>
                 <div>
                   <h5 className="font-bold text-blue-100">{t('contact.callUs')}</h5>
-                  <p className="text-sm" dir="ltr">+966 54 480 0072</p>
+                  <p className="text-sm" dir="ltr">{t('common.phoneNumber')}</p>
                 </div>
               </li>
             </ul>

@@ -281,7 +281,7 @@ export const CvOptimizer: React.FC = () => {
       <div className="h-[calc(100vh-64px)] flex items-center justify-center bg-background">
         <div className="text-center">
           <Loader size={48} className="animate-spin text-primary mx-auto mb-4" />
-          <p className="text-gray-500">Restoring your session...</p>
+          <p className="text-gray-500">{t('cv.restoringSession')}</p>
         </div>
       </div>
     );
@@ -301,7 +301,7 @@ export const CvOptimizer: React.FC = () => {
             <h2 className="font-semibold text-charcoal flex items-center gap-2 overflow-hidden">
               <FileText size={18} className="text-primary shrink-0" />
               <span className="truncate max-w-[200px]">
-                {file ? file.name : (sessionId ? "Resumed Session" : t('cv.title'))}
+                {file ? file.name : (sessionId ? t('cv.resumedSession') : t('cv.title'))}
               </span>
             </h2>
             <div className="flex items-center gap-2 shrink-0">
@@ -321,7 +321,7 @@ export const CvOptimizer: React.FC = () => {
                   className="bg-secondary hover:bg-teal-600 text-white px-4 py-1.5 rounded-md text-sm font-bold flex items-center gap-2 transition-colors shadow-sm disabled:opacity-50"
                 >
                   {isFinalizing ? <Loader size={16} className="animate-spin" /> : <Download size={16} />}
-                  <span className="hidden sm:inline">Save & Download</span>
+                  <span className="hidden sm:inline">{t('cv.saveAndDownload')}</span>
                 </button>
               )}
             </div>
@@ -332,7 +332,7 @@ export const CvOptimizer: React.FC = () => {
               <div className="text-center p-10 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 m-4 max-w-sm">
                 <Upload size={48} className="mx-auto text-gray-400 mb-4" />
                 <h3 className="text-lg font-medium text-gray-700">{t('cv.uploadTitle')}</h3>
-                <p className="text-gray-500 text-sm mb-6">PDF Only (Max 5MB)</p>
+                <p className="text-gray-500 text-sm mb-6">{t('cv.pdfOnly')}</p>
                 <div className="relative">
                   <input
                     type="file"
@@ -341,14 +341,14 @@ export const CvOptimizer: React.FC = () => {
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
                   <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 shadow-sm pointer-events-none">
-                    Select Document
+                    {t('cv.selectDocument')}
                   </button>
                 </div>
               </div>
             ) : isProcessingFile ? (
               <div className="text-center">
                 <Loader size={40} className="animate-spin text-primary mx-auto mb-4" />
-                <p className="text-gray-500 font-medium">Extracting text...</p>
+                <p className="text-gray-500 font-medium">{t('cv.extractingText')}</p>
               </div>
             ) : (
               <div className="w-full h-full">
@@ -366,16 +366,16 @@ export const CvOptimizer: React.FC = () => {
           <div className="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center shrink-0">
             <h2 className="font-semibold text-charcoal flex items-center gap-2">
               <MessageSquare size={18} className="text-secondary" />
-              AI Editor Assistant
+              {t('cv.aiEditorAssistant')}
             </h2>
             <div className="flex items-center gap-2">
               {!currentText && sessionId && (
-                <span className="text-xs text-orange-500 bg-orange-50 px-2 py-1 rounded border border-orange-200" title="Re-upload to enable editing">
-                  Chat Only Mode
+                <span className="text-xs text-orange-500 bg-orange-50 px-2 py-1 rounded border border-orange-200" title={t('cv.chatOnlyMode')}>
+                  {t('cv.chatOnlyMode')}
                 </span>
               )}
               <div className="text-xs font-medium text-gray-500 bg-white px-3 py-1.5 rounded-full border shadow-sm">
-                Status: {loading ? <span className="text-secondary">Thinking...</span> : <span className="text-green-500">Ready</span>}
+                {t('cv.status')} {loading ? <span className="text-secondary">{t('cv.statusThinking')}</span> : <span className="text-green-500">{t('cv.statusReady')}</span>}
               </div>
             </div>
           </div>
@@ -386,14 +386,14 @@ export const CvOptimizer: React.FC = () => {
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <RefreshCw size={24} className="text-gray-300" />
                 </div>
-                <p>Upload your CV or restore a session to start.</p>
+                <p>{t('cv.uploadPrompt')}</p>
               </div>
             )}
 
             {sessionId && messages.length === 0 && !isProcessingFile && (
               <div className="text-center text-gray-400 mt-10">
                 <History size={20} className="mx-auto mb-2" />
-                <p>Session restored. No previous messages found.</p>
+                <p>{t('cv.sessionRestored')}</p>
               </div>
             )}
 
@@ -423,21 +423,21 @@ export const CvOptimizer: React.FC = () => {
                   disabled={loading}
                   className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full bg-blue-50 text-primary hover:bg-primary hover:text-white transition-colors border border-blue-100 whitespace-nowrap disabled:opacity-50"
                 >
-                  <Sparkles size={14} /> Optimization as per ATS
+                  <Sparkles size={14} /> {t('cv.optimizationATS')}
                 </button>
                 <button
                   onClick={handleSuggestedImprovements}
                   disabled={loading}
                   className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full bg-teal-50 text-teal-700 hover:bg-secondary hover:text-white transition-colors border border-teal-100 whitespace-nowrap disabled:opacity-50"
                 >
-                  <ListChecks size={14} /> Suggested Improvements
+                  <ListChecks size={14} /> {t('cv.suggestedImprovements')}
                 </button>
                 <button
                   onClick={handleCustomizedChanges}
                   disabled={loading}
                   className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full bg-gray-100 text-gray-700 hover:bg-gray-700 hover:text-white transition-colors border border-gray-200 whitespace-nowrap disabled:opacity-50"
                 >
-                  <Edit3 size={14} /> Customized Changes
+                  <Edit3 size={14} /> {t('cv.customizedChanges')}
                 </button>
               </div>
             )}
@@ -450,7 +450,7 @@ export const CvOptimizer: React.FC = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                placeholder={sessionId ? "Ask for a rewrite..." : "Upload a file first..."}
+                placeholder={sessionId ? t('cv.askForRewrite') : t('cv.uploadFirst')}
                 className="flex-1 border border-gray-300 rounded-full px-5 py-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-50 disabled:text-gray-400 transition-shadow"
               />
               <button
@@ -464,6 +464,6 @@ export const CvOptimizer: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
