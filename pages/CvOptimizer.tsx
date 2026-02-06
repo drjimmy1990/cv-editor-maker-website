@@ -6,6 +6,7 @@ import { ChatMessage, DbChatMessage, DbCvSession } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { PdfViewer } from '../components/PdfViewer';
+import { InsufficientCreditsModal } from '../components/InsufficientCreditsModal';
 
 export const CvOptimizer: React.FC = () => {
   const { user } = useAuth();
@@ -23,6 +24,10 @@ export const CvOptimizer: React.FC = () => {
   const [isProcessingFile, setIsProcessingFile] = useState(false);
   const [isFinalizing, setIsFinalizing] = useState(false);
   const [isRestoring, setIsRestoring] = useState(true);
+
+  // Credit Modal State
+  const [showCreditModal, setShowCreditModal] = useState(false);
+  const [creditData, setCreditData] = useState({ required: 0, current: 0 });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -231,7 +236,13 @@ export const CvOptimizer: React.FC = () => {
           .eq('id', sessionId);
       }
 
-    } catch (error) {
+    } catch (error: any) {
+      if (error.isInsufficientCredits) {
+        setMessages(prev => prev.filter(m => !m.isSystem));
+        setCreditData({ required: error.required, current: error.current });
+        setShowCreditModal(true);
+        return;
+      }
       console.error(error);
       setMessages(prev => prev.filter(m => !m.isSystem));
       setMessages(prev => [...prev, {
@@ -464,6 +475,14 @@ export const CvOptimizer: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <InsufficientCreditsModal
+        isOpen={showCreditModal}
+        onClose={() => setShowCreditModal(false)}
+        requiredCredits={creditData.required}
+        currentCredits={creditData.current}
+        serviceName={t('cv.optimizationATS')}
+      />
     </div >
   );
 };

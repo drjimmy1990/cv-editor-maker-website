@@ -4,7 +4,10 @@ import { useNavigate } from 'react-router-dom';
 // ⚠️ CRITICAL CHANGE: Ensure this imports 'api', NOT 'geminiService'
 import { api } from '../services/api';
 import { ComparisonResult } from '../types';
+import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { InsufficientCreditsModal } from '../components/InsufficientCreditsModal';
+
 
 export const CompetitorAnalysis: React.FC = () => {
   const [linkA, setLinkA] = useState('');
@@ -12,7 +15,10 @@ export const CompetitorAnalysis: React.FC = () => {
   const [reportLang, setReportLang] = useState<'English' | 'Arabic'>('English');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ComparisonResult | null>(null);
+  const [showCreditModal, setShowCreditModal] = useState(false);
+  const [creditData, setCreditData] = useState({ required: 0, current: 0 });
   const { t, isRTL } = useLanguage();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const handleCompare = async (e: React.FormEvent) => {
@@ -24,7 +30,7 @@ export const CompetitorAnalysis: React.FC = () => {
 
     try {
       // ✅ Call the n8n API wrapper
-      const data = await api.compareBusinesses(linkA, linkB, reportLang);
+      const data = await api.compareBusinesses(linkA, linkB, reportLang, user?.id || '');
 
       // Safety check for empty lists to prevent .map() errors
       if (!data.strengthsA) data.strengthsA = [];
@@ -33,7 +39,13 @@ export const CompetitorAnalysis: React.FC = () => {
       if (!data.weaknessesB) data.weaknessesB = [];
 
       setResult(data);
-    } catch (error) {
+    } catch (error: any) {
+      if (error.isInsufficientCredits) {
+        setCreditData({ required: error.required, current: error.current });
+        setShowCreditModal(true);
+        setLoading(false);
+        return;
+      }
       console.error(error);
       alert("Analysis failed. Check console for details.");
     } finally {
@@ -203,6 +215,14 @@ export const CompetitorAnalysis: React.FC = () => {
           </div>
         </div>
       )}
+
+      <InsufficientCreditsModal
+        isOpen={showCreditModal}
+        onClose={() => setShowCreditModal(false)}
+        requiredCredits={creditData.required}
+        currentCredits={creditData.current}
+        serviceName={t('analysis.title')}
+      />
     </div>
   );
 };

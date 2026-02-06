@@ -2,15 +2,20 @@ import React, { useState } from 'react';
 import { Search, TrendingUp, ThumbsUp, ThumbsDown, AlertTriangle, Loader, Printer, Star, Users, BarChart2, MapPin, ArrowRight } from 'lucide-react';
 import { api } from '../services/api';
 import { BusinessAnalysisResult } from '../types';
+import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
+import { InsufficientCreditsModal } from '../components/InsufficientCreditsModal';
 
 export const BusinessAnalyzer: React.FC = () => {
     const [link, setLink] = useState('');
     const [reportLang, setReportLang] = useState<'English' | 'Arabic'>('English');
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<BusinessAnalysisResult | null>(null);
+    const [showCreditModal, setShowCreditModal] = useState(false);
+    const [creditData, setCreditData] = useState({ required: 0, current: 0 });
     const { t } = useLanguage();
+    const { user } = useAuth();
     const navigate = useNavigate();
 
     const handleAnalyze = async (e: React.FormEvent) => {
@@ -21,14 +26,20 @@ export const BusinessAnalyzer: React.FC = () => {
         setResult(null);
 
         try {
-            const data = await api.analyzeBusiness(link, reportLang);
+            const data = await api.analyzeBusiness(link, reportLang, user?.id || '');
 
             // Safety check for empty lists
             if (!data.strengths) data.strengths = [];
             if (!data.weaknesses) data.weaknesses = [];
 
             setResult(data);
-        } catch (error) {
+        } catch (error: any) {
+            if (error.isInsufficientCredits) {
+                setCreditData({ required: error.required, current: error.current });
+                setShowCreditModal(true);
+                setLoading(false);
+                return;
+            }
             console.error(error);
             alert("Analysis failed. Check console for details.");
         } finally {
@@ -177,6 +188,15 @@ export const BusinessAnalyzer: React.FC = () => {
                     </div>
                 </div>
             )}
+
+
+            <InsufficientCreditsModal
+                isOpen={showCreditModal}
+                onClose={() => setShowCreditModal(false)}
+                requiredCredits={creditData.required}
+                currentCredits={creditData.current}
+                serviceName={t('businessAnalyzer.title')}
+            />
         </div>
     );
 };

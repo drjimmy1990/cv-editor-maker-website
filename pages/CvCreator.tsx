@@ -6,6 +6,7 @@ import { supabase } from '../services/supabaseClient';
 import { CvData, CustomSection } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
+import { InsufficientCreditsModal } from '../components/InsufficientCreditsModal';
 
 export const CvCreator: React.FC = () => {
     const { user } = useAuth();
@@ -23,6 +24,10 @@ export const CvCreator: React.FC = () => {
         status: string;
     }>>([]);
     const [loadingHistory, setLoadingHistory] = useState(true);
+
+    // Credit Modal State
+    const [showCreditModal, setShowCreditModal] = useState(false);
+    const [creditData, setCreditData] = useState({ required: 0, current: 0 });
 
     // Track which optional sections are visible
     const [activeSections, setActiveSections] = useState({
@@ -228,7 +233,13 @@ export const CvCreator: React.FC = () => {
             } else {
                 alert("CV Generated, but URL missing.");
             }
-        } catch (error) {
+        } catch (error: any) {
+            if (error.isInsufficientCredits) {
+                setCreditData({ required: error.required, current: error.current });
+                setShowCreditModal(true);
+                setLoading(false);
+                return;
+            }
             alert("Failed to generate CV. Ensure n8n is running.");
         } finally {
             setLoading(false);
@@ -327,8 +338,8 @@ export const CvCreator: React.FC = () => {
                                                         <p className="text-sm font-medium text-charcoal flex items-center gap-2">
                                                             CV - {new Date(cv.created_at).toLocaleDateString()}
                                                             <span className={`text-xs px-2 py-0.5 rounded-full ${cv.status === 'downloaded' ? 'bg-green-100 text-green-700' :
-                                                                    cv.status === 'active' ? 'bg-blue-100 text-blue-700' :
-                                                                        'bg-gray-100 text-gray-600'
+                                                                cv.status === 'active' ? 'bg-blue-100 text-blue-700' :
+                                                                    'bg-gray-100 text-gray-600'
                                                                 }`}>
                                                                 {cv.status}
                                                             </span>
@@ -778,6 +789,13 @@ export const CvCreator: React.FC = () => {
                     </form>
                 </div>
             </div>
+            <InsufficientCreditsModal
+                isOpen={showCreditModal}
+                onClose={() => setShowCreditModal(false)}
+                requiredCredits={creditData.required}
+                currentCredits={creditData.current}
+                serviceName={t('cvCreator.pageTitle')}
+            />
         </div>
     );
 };

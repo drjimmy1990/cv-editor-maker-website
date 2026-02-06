@@ -101,14 +101,31 @@ export const api = {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ linkA, linkB, language, profile_id: profileId }),
+                body: JSON.stringify({ linkA, linkB, language, profile_id: profileId, userId: profileId }),
             });
 
             if (!response.ok) {
-                throw new Error(`n8n Error: ${response.statusText}`);
+                const errorData = await response.json().catch(() => ({}));
+                const message = errorData.message || errorData.error || `n8n Error: ${response.statusText}`;
+                const error = new Error(message);
+                if (response.status === 402 || errorData.error === 'insufficient_credits') {
+                    (error as any).isInsufficientCredits = true;
+                    (error as any).required = errorData.required;
+                    (error as any).current = errorData.current;
+                }
+                throw error;
             }
 
-            return await response.json() as ComparisonResult;
+            const data = await response.json();
+            if (data.error === 'insufficient_credits') {
+                const error = new Error(data.message || 'Insufficient credits');
+                (error as any).isInsufficientCredits = true;
+                (error as any).required = data.required;
+                (error as any).current = data.current;
+                throw error;
+            }
+
+            return data as ComparisonResult;
         } catch (error) {
             console.error("API Error:", error);
             throw error;
@@ -125,14 +142,31 @@ export const api = {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ link, language, profile_id: profileId }),
+                body: JSON.stringify({ link, language, profile_id: profileId, userId: profileId }),
             });
 
             if (!response.ok) {
-                throw new Error(`n8n Error: ${response.statusText}`);
+                const errorData = await response.json().catch(() => ({}));
+                const message = errorData.message || errorData.error || `n8n Error: ${response.statusText}`;
+                const error = new Error(message);
+                if (response.status === 402 || errorData.error === 'insufficient_credits') {
+                    (error as any).isInsufficientCredits = true;
+                    (error as any).required = errorData.required;
+                    (error as any).current = errorData.current;
+                }
+                throw error;
             }
 
-            return await response.json() as BusinessAnalysisResult;
+            const data = await response.json();
+            if (data.error === 'insufficient_credits') {
+                const error = new Error(data.message || 'Insufficient credits');
+                (error as any).isInsufficientCredits = true;
+                (error as any).required = data.required;
+                (error as any).current = data.current;
+                throw error;
+            }
+
+            return data as BusinessAnalysisResult;
         } catch (error) {
             console.error("API Error:", error);
             throw error;
@@ -181,10 +215,27 @@ export const api = {
             });
 
             if (!response.ok) {
-                throw new Error(`n8n Error: ${response.statusText}`);
+                const errorData = await response.json().catch(() => ({}));
+                const message = errorData.message || errorData.error || `n8n Error: ${response.statusText}`;
+                const error = new Error(message);
+                if (response.status === 402 || errorData.error === 'insufficient_credits') {
+                    (error as any).isInsufficientCredits = true;
+                    (error as any).required = errorData.required;
+                    (error as any).current = errorData.current;
+                }
+                throw error;
             }
 
-            return await response.json() as CvOptimizeResult;
+            const data = await response.json();
+            if (data.error === 'insufficient_credits') {
+                const error = new Error(data.message || 'Insufficient credits');
+                (error as any).isInsufficientCredits = true;
+                (error as any).required = data.required;
+                (error as any).current = data.current;
+                throw error;
+            }
+
+            return data as CvOptimizeResult;
         } catch (error) {
             console.error("CV Optimize Error:", error);
             throw error;
@@ -221,8 +272,28 @@ export const api = {
                 body: JSON.stringify({ ...data, userId }),
             });
 
-            if (!response.ok) throw new Error("Failed to generate CV");
-            return await response.json();
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                const message = errorData.message || errorData.error || `n8n Error: ${response.statusText}`;
+                const error = new Error(message);
+                if (response.status === 402 || errorData.error === 'insufficient_credits') {
+                    (error as any).isInsufficientCredits = true;
+                    (error as any).required = errorData.required;
+                    (error as any).current = errorData.current;
+                }
+                throw error;
+            }
+
+            const dataResponse = await response.json();
+            if (dataResponse.error === 'insufficient_credits') {
+                const error = new Error(dataResponse.message || 'Insufficient credits');
+                (error as any).isInsufficientCredits = true;
+                (error as any).required = dataResponse.required;
+                (error as any).current = dataResponse.current;
+                throw error;
+            }
+
+            return dataResponse;
         } catch (error) {
             console.error("Create CV Error:", error);
             throw error;
