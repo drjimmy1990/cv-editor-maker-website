@@ -11,6 +11,7 @@ import { useAuth } from '../context/AuthContext';
 import { ContentEditor } from '../components/ContentEditor';
 import { SystemConfigManager } from '../components/SystemConfigManager';
 import { PromoManager } from '../components/PromoManager';
+import { AnalyticsDashboard } from '../components/AnalyticsDashboard';
 
 // Types
 interface ConsultationRequest {
@@ -59,6 +60,8 @@ export const Admin: React.FC = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [contacts, setContacts] = useState<ContactSubmission[]>([]);
   const [cvSessions, setCvSessions] = useState<CvSession[]>([]);
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [comparisons, setComparisons] = useState<any[]>([]);
   const [totalUsers, setTotalUsers] = useState<number>(0);
   const [selectedRequest, setSelectedRequest] = useState<ConsultationRequest | null>(null);
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
@@ -101,6 +104,8 @@ export const Admin: React.FC = () => {
       fetchUsers(),
       fetchContacts(),
       fetchCvSessions(),
+      fetchTransactions(),
+      fetchComparisons(),
     ]);
   };
 
@@ -175,6 +180,29 @@ export const Admin: React.FC = () => {
       }
     } catch (error) {
       console.error("Error fetching CV sessions:", error);
+    }
+  };
+
+  const fetchTransactions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (data) setTransactions(data);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    }
+  };
+
+  const fetchComparisons = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('company_comparisons')
+        .select('*');
+      if (data) setComparisons(data);
+    } catch (error) {
+      console.error("Error fetching comparisons:", error);
     }
   };
 
@@ -315,64 +343,15 @@ export const Admin: React.FC = () => {
       </div>
 
       {/* Dashboard Tab */}
+      {/* Dashboard Tab */}
       {activeTab === 'dashboard' && (
-        <div className="space-y-8">
-          {/* KPI Cards */}
-          <div className="grid md:grid-cols-4 gap-6">
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center gap-4">
-              <div className="p-4 bg-blue-50 rounded-lg">
-                <Users className="text-primary" size={24} />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 font-medium">{t('admin.totalUsers')}</p>
-                <p className="text-2xl font-bold text-charcoal">{totalUsers}</p>
-              </div>
-            </div>
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center gap-4">
-              <div className="p-4 bg-yellow-50 rounded-lg">
-                <MessageSquare className="text-yellow-600" size={24} />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 font-medium">{t('admin.pendingReq')}</p>
-                <p className="text-2xl font-bold text-charcoal">{requests.filter(r => r.status === 'pending').length}</p>
-              </div>
-            </div>
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center gap-4">
-              <div className="p-4 bg-green-50 rounded-lg">
-                <Mail className="text-green-600" size={24} />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 font-medium">{t('admin.contactMessages')}</p>
-                <p className="text-2xl font-bold text-charcoal">{contacts.length}</p>
-              </div>
-            </div>
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center gap-4">
-              <div className="p-4 bg-purple-50 rounded-lg">
-                <FileText className="text-purple-600" size={24} />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 font-medium">{t('admin.cvSessions')}</p>
-                <p className="text-2xl font-bold text-charcoal">{cvSessions.length}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="font-bold text-charcoal mb-4">{t('admin.quickActions')}</h2>
-            <div className="flex flex-wrap gap-3">
-              <button onClick={() => setActiveTab('users')} className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors">
-                <Users size={16} /> {t('admin.manageUsers')}
-              </button>
-              <button onClick={() => setActiveTab('consultations')} className="flex items-center gap-2 px-4 py-2 bg-yellow-100 hover:bg-yellow-200 text-yellow-800 rounded-lg text-sm font-medium transition-colors">
-                <MessageSquare size={16} /> {t('admin.viewConsultations')}
-              </button>
-              <button onClick={() => setActiveTab('contact')} className="flex items-center gap-2 px-4 py-2 bg-green-100 hover:bg-green-200 text-green-800 rounded-lg text-sm font-medium transition-colors">
-                <Mail size={16} /> {t('admin.viewContacts')}
-              </button>
-            </div>
-          </div>
-        </div>
+        <AnalyticsDashboard
+          users={users}
+          transactions={transactions}
+          cvSessions={cvSessions}
+          comparisons={comparisons}
+          contacts={contacts}
+        />
       )}
 
       {/* Users Tab */}
