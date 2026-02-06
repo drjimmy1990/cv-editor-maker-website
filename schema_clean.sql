@@ -675,3 +675,23 @@ VALUES (
         false
     )
 ON CONFLICT (key) DO NOTHING;
+
+-- Allow Admins to Delete Contact Submissions (Complaints & Messages)
+CREATE POLICY "Admins can delete contacts" ON contact_submissions FOR DELETE USING (
+    auth.uid () IN (
+        SELECT id
+        FROM profiles
+        WHERE
+            role = 'admin'
+    )
+);
+
+-- Allow Admins to Delete Consultation Requests
+CREATE POLICY "Admins can delete consultations" ON consultation_requests FOR DELETE USING (
+    auth.uid () IN (
+        SELECT id
+        FROM profiles
+        WHERE
+            role = 'admin'
+    )
+);
