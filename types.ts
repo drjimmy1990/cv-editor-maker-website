@@ -66,11 +66,15 @@ export interface ComparisonResult {
   businessA_Count: number;
   strengthsA: string[];
   weaknessesA: string[];
+  opportunitiesA: string[];
+  threatsA: string[];
   businessB: string;
   businessB_Score: number;
   businessB_Count: number;
   strengthsB: string[];
   weaknessesB: string[];
+  opportunitiesB: string[];
+  threatsB: string[];
   winner: string;
   summary: string;
   recommendation: string;
@@ -85,6 +89,8 @@ export interface BusinessAnalysisResult {
   reviewCount: number;
   strengths: string[];
   weaknesses: string[];
+  opportunities: string[];
+  threats: string[];
   summary: string;
   recommendation: string;
   chartUrlMonthly: string;

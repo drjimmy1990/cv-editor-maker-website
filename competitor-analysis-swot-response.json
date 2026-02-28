@@ -1,0 +1,49 @@
+{
+    "winner": "Name of Business",
+    "summary": "2 sentence summary.",
+    "recommendation": "Strategic advice.",
+    "businessA_analysis": {
+        "strengths": [
+            "Strength 1",
+            "Strength 2",
+            "Strength 3"
+        ],
+        "weaknesses": [
+            "Weakness 1",
+            "Weakness 2",
+            "Weakness 3"
+        ],
+        "opportunities": [
+            "Opportunity 1",
+            "Opportunity 2",
+            "Opportunity 3"
+        ],
+        "threats": [
+            "Threat 1",
+            "Threat 2",
+            "Threat 3"
+        ]
+    },
+    "businessB_analysis": {
+        "strengths": [
+            "Strength 1",
+            "Strength 2",
+            "Strength 3"
+        ],
+        "weaknesses": [
+            "Weakness 1",
+            "Weakness 2",
+            "Weakness 3"
+        ],
+        "opportunities": [
+            "Opportunity 1",
+            "Opportunity 2",
+            "Opportunity 3"
+        ],
+        "threats": [
+            "Threat 1",
+            "Threat 2",
+            "Threat 3"
+        ]
+    }
+}

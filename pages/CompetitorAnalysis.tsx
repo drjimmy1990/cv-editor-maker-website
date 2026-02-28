@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, TrendingUp, Award, ThumbsUp, ThumbsDown, AlertTriangle, Loader, Printer, ArrowRight, Star, Users, BarChart2, MapPin } from 'lucide-react';
+import { Search, TrendingUp, Award, ThumbsUp, ThumbsDown, AlertTriangle, Loader, Printer, ArrowRight, Star, Users, BarChart2, MapPin, Lightbulb, ShieldAlert } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 // ⚠️ CRITICAL CHANGE: Ensure this imports 'api', NOT 'geminiService'
 import { api } from '../services/api';
@@ -35,8 +35,12 @@ export const CompetitorAnalysis: React.FC = () => {
       // Safety check for empty lists to prevent .map() errors
       if (!data.strengthsA) data.strengthsA = [];
       if (!data.weaknessesA) data.weaknessesA = [];
+      if (!data.opportunitiesA) data.opportunitiesA = [];
+      if (!data.threatsA) data.threatsA = [];
       if (!data.strengthsB) data.strengthsB = [];
       if (!data.weaknessesB) data.weaknessesB = [];
+      if (!data.opportunitiesB) data.opportunitiesB = [];
+      if (!data.threatsB) data.threatsB = [];
 
       setResult(data);
     } catch (error: any) {
@@ -165,29 +169,50 @@ export const CompetitorAnalysis: React.FC = () => {
             </div>
           </div>
 
-          {/* SWOT */}
-          <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
-            <div className="grid grid-cols-2 divide-x divide-gray-200">
-              <div className="p-6">
-                <h3 className="text-lg font-bold text-primary mb-4 text-center border-b pb-2">{result.businessA}</h3>
-                <div className="mb-6">
-                  <h4 className="flex items-center gap-2 font-bold text-green-600 mb-3 text-sm uppercase"><ThumbsUp size={16} /> Strengths</h4>
-                  <ul className="space-y-2">{result.strengthsA.map((p, i) => <li key={i} className="text-sm text-gray-600 flex items-start gap-2"><span className="text-green-500">•</span> {p}</li>)}</ul>
+          {/* SWOT Analysis */}
+          <div className="space-y-8">
+            {/* Business A SWOT */}
+            <div>
+              <h3 className="text-xl font-bold text-primary mb-4 text-center">{result.businessA} — SWOT Analysis</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-green-50 border border-green-200 rounded-xl p-5">
+                  <h4 className="flex items-center gap-2 font-bold text-green-700 mb-3 text-sm uppercase tracking-wide"><ThumbsUp size={16} /> Strengths</h4>
+                  <ul className="space-y-2">{result.strengthsA.map((p, i) => <li key={i} className="text-sm text-gray-700 flex items-start gap-2"><span className="text-green-500 mt-0.5">●</span> {p}</li>)}</ul>
                 </div>
-                <div>
-                  <h4 className="flex items-center gap-2 font-bold text-red-500 mb-3 text-sm uppercase"><ThumbsDown size={16} /> Weaknesses</h4>
-                  <ul className="space-y-2">{result.weaknessesA.map((p, i) => <li key={i} className="text-sm text-gray-600 flex items-start gap-2"><span className="text-red-400">•</span> {p}</li>)}</ul>
+                <div className="bg-red-50 border border-red-200 rounded-xl p-5">
+                  <h4 className="flex items-center gap-2 font-bold text-red-600 mb-3 text-sm uppercase tracking-wide"><ThumbsDown size={16} /> Weaknesses</h4>
+                  <ul className="space-y-2">{result.weaknessesA.map((p, i) => <li key={i} className="text-sm text-gray-700 flex items-start gap-2"><span className="text-red-400 mt-0.5">●</span> {p}</li>)}</ul>
+                </div>
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
+                  <h4 className="flex items-center gap-2 font-bold text-blue-700 mb-3 text-sm uppercase tracking-wide"><Lightbulb size={16} /> Opportunities</h4>
+                  <ul className="space-y-2">{result.opportunitiesA.map((p, i) => <li key={i} className="text-sm text-gray-700 flex items-start gap-2"><span className="text-blue-500 mt-0.5">●</span> {p}</li>)}</ul>
+                </div>
+                <div className="bg-orange-50 border border-orange-200 rounded-xl p-5">
+                  <h4 className="flex items-center gap-2 font-bold text-orange-600 mb-3 text-sm uppercase tracking-wide"><ShieldAlert size={16} /> Threats</h4>
+                  <ul className="space-y-2">{result.threatsA.map((p, i) => <li key={i} className="text-sm text-gray-700 flex items-start gap-2"><span className="text-orange-500 mt-0.5">●</span> {p}</li>)}</ul>
                 </div>
               </div>
-              <div className="p-6">
-                <h3 className="text-lg font-bold text-secondary mb-4 text-center border-b pb-2">{result.businessB}</h3>
-                <div className="mb-6">
-                  <h4 className="flex items-center gap-2 font-bold text-green-600 mb-3 text-sm uppercase"><ThumbsUp size={16} /> Strengths</h4>
-                  <ul className="space-y-2">{result.strengthsB.map((p, i) => <li key={i} className="text-sm text-gray-600 flex items-start gap-2"><span className="text-green-500">•</span> {p}</li>)}</ul>
+            </div>
+
+            {/* Business B SWOT */}
+            <div>
+              <h3 className="text-xl font-bold text-secondary mb-4 text-center">{result.businessB} — SWOT Analysis</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-green-50 border border-green-200 rounded-xl p-5">
+                  <h4 className="flex items-center gap-2 font-bold text-green-700 mb-3 text-sm uppercase tracking-wide"><ThumbsUp size={16} /> Strengths</h4>
+                  <ul className="space-y-2">{result.strengthsB.map((p, i) => <li key={i} className="text-sm text-gray-700 flex items-start gap-2"><span className="text-green-500 mt-0.5">●</span> {p}</li>)}</ul>
                 </div>
-                <div>
-                  <h4 className="flex items-center gap-2 font-bold text-red-500 mb-3 text-sm uppercase"><ThumbsDown size={16} /> Weaknesses</h4>
-                  <ul className="space-y-2">{result.weaknessesB.map((p, i) => <li key={i} className="text-sm text-gray-600 flex items-start gap-2"><span className="text-red-400">•</span> {p}</li>)}</ul>
+                <div className="bg-red-50 border border-red-200 rounded-xl p-5">
+                  <h4 className="flex items-center gap-2 font-bold text-red-600 mb-3 text-sm uppercase tracking-wide"><ThumbsDown size={16} /> Weaknesses</h4>
+                  <ul className="space-y-2">{result.weaknessesB.map((p, i) => <li key={i} className="text-sm text-gray-700 flex items-start gap-2"><span className="text-red-400 mt-0.5">●</span> {p}</li>)}</ul>
+                </div>
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
+                  <h4 className="flex items-center gap-2 font-bold text-blue-700 mb-3 text-sm uppercase tracking-wide"><Lightbulb size={16} /> Opportunities</h4>
+                  <ul className="space-y-2">{result.opportunitiesB.map((p, i) => <li key={i} className="text-sm text-gray-700 flex items-start gap-2"><span className="text-blue-500 mt-0.5">●</span> {p}</li>)}</ul>
+                </div>
+                <div className="bg-orange-50 border border-orange-200 rounded-xl p-5">
+                  <h4 className="flex items-center gap-2 font-bold text-orange-600 mb-3 text-sm uppercase tracking-wide"><ShieldAlert size={16} /> Threats</h4>
+                  <ul className="space-y-2">{result.threatsB.map((p, i) => <li key={i} className="text-sm text-gray-700 flex items-start gap-2"><span className="text-orange-500 mt-0.5">●</span> {p}</li>)}</ul>
                 </div>
               </div>
             </div>
